@@ -1,0 +1,4 @@
+https://github.com/pyrogram/pyrogram/archive/v1.1.0.zip
+tgcrypto==1.2.2
+mysql-connector==2.2.9
+feedparser==5.2.1
