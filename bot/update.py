@@ -2,9 +2,9 @@ from time import sleep
 import rss
 
 news: dict = {}
-limit = 20
+timer = 1.5 * 3600
 
-def run(app, *args):
+def run(app, *args) -> None:
     while True:
         print("Atualizando...")
         urls = app.database.getAllUrl()
@@ -14,11 +14,12 @@ def run(app, *args):
             if len(news[url]) > limit:
                 news[url] = news[url][:limit]
             sendNews(app, url, news[url])
-        sleep(60)
+        sleep(timer)
 
-def sendNews(app, url: str, news: dict):
+def sendNews(app, url: str, news: dict) -> None:
     chats: list = app.database.getAllChats(url)
     for id, chat_id in chats:
+        limit = app.database.getLimit(id)
         lastUpdate: int = app.database.getLastUpdate(id)
         count = 0
         for new in news["entries"]:
@@ -35,8 +36,6 @@ def sendNews(app, url: str, news: dict):
                 )
                 sleep(0.5)
                 count += 1
-            except KeyboardInterrupt:
-                return
             except:
                 pass
         app.database.setLastUpdate(id, news["entries"][0]["published"])
