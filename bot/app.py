@@ -1,49 +1,15 @@
-from re import findall
 from json import load
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.handlers import CallbackQueryHandler
-import database, rss, callbacks
+import database, rss, callbacks, extra
 
 
-App = Client("RSS")
+App: Client = Client("RSS")
 App.config: dict = load(open("bot.json"))
 App.database = database.mysql(**App.config["mysql"])
 App.add_handler(CallbackQueryHandler(callbacks.handler))
 
-
-async def getChatId(client: Client, message: Message) -> int:
-    marked = findall(r"\((.*)\)", message.text)
-    if marked:
-        message.text = marked[0]
-    try:
-        return int(message.text)
-    except ValueError:
-        pass
-    if "t.me" in message.text:
-        message.text = message.text.split("/")[-1]
-    try:
-        chat = await client.get_chat(message.text)
-        return chat.id
-    except:
-        pass
-    return message.chat.id
-
-
-async def havePermition(client: Client, message: Message, id: int) -> bool:
-    chat = await client.get_chat(id)
-    if chat.type == "private" and message.from_user.id != id:
-        await message.reply("Você não pode editar as configurações de outro usuário!")
-        return False
-    try:
-        admins = await client.get_chat_members(group, filter="administrators")
-    except:
-        await message.reply("Eu não estou nesse canal/grupo!")
-        return False
-    for admin in admins:
-        if admin.id == user:
-            return True
-    return True
 
 @App.on_message(filters.command("start"))
 async def start(client: Client, message: Message) -> None:
@@ -74,8 +40,8 @@ async def help(client: Client, message: Message) -> None:
 
 @App.on_message(filters.command("add"))
 async def add(client: Client, message: Message):
-    userId = await getChatId(client, message.text)
-    permition = havePermition(client, message, userId)
+    userId = await extra.getChatId(client, message)
+    permition = await extra.havePermition(client, message, userId)
     if not permition:
         return
     user = findall(r"\(.*\)", message.text)
@@ -101,8 +67,8 @@ async def add(client: Client, message: Message):
 
 @App.on_message(filters.command("list"))
 async def listRss(client: Client, message: Message):
-    userId = await getChatId(client, message.text)
-    permition = havePermition(client, message, userId)
+    userId = await extra.getChatId(client, message)
+    permition = await extra.havePermition(client, message, userId)
     if not permition:
         return
     rssList: list = client.database.getRSS(userId)
@@ -117,8 +83,8 @@ async def listRss(client: Client, message: Message):
 
 @App.on_message(filters.command("remove"))
 async def remove(client: Client, message: Message):
-    userId = await getChatId(client, message.text)
-    permition = havePermition(client, message, userId)
+    userId = await extra.getChatId(client, message)
+    permition = await extra.havePermition(client, message, userId)
     if not permition:
         return
     rssList: list = client.database.getRSS(userId)
@@ -140,19 +106,16 @@ async def remove(client: Client, message: Message):
 
 @App.on_message(filters.command("limit"))
 async def limit(client: Client, message: Message):
-    userId = await getChatId(client, message.text)
-    permition = havePermition(client, message, userId)
-    if not permition:
-        return
-    params: list = message.split()
+    userId = await extra.getChatId(client, message)
+    params: list = message.text.split()
     if len(params) == 1:
         limit = client.database.getLimit(userId)
-        await message.reply(f"O limite atual é: {limit[0][0]}.")
+        await message.reply(f"O limite atual é: {limit}.")
         return
     try:
         limit = int(params[1])
     except:
         await message.reply("Eu preciso de um número!")
         return
-    cleint.database.setLimit(userId, limit)
+    client.database.setLimit(userId, limit)
     await message.reply("Limite atualizado.")

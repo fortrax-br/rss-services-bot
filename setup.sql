@@ -1,6 +1,11 @@
-CREATE DATABASE IF NOT EXISTS rssBot
+DROP DATABASE IF EXISTS rssBot;
+
+CREATE DATABASE rssBot
     DEFAULT CHARSET utf8 COLLATE = utf8_general_ci;
 
+use rssBot;
+
+SET FOREIGN_KEY_CHECKS = 0;
 
 CREATE TABLE IF NOT EXISTS users(
     id INT AUTO_INCREMENT NOT NULL,
@@ -14,16 +19,12 @@ CREATE TABLE IF NOT EXISTS sessions(
     control_id INT NOT NULL,
     started INT NOT NULL
 );
-ALTER TABLE sessions ADD CONSTRAINT fk_sessions_user
+ALTER TABLE sessions ADD
     FOREIGN KEY(user_id)
-    REFERENCES users(id)
-    ON DELETE no action
-    ON UPDATE no action;
-ALTER TABLE sessions ADD CONSTRAINT fk_sessions_control
+    REFERENCES users(id);
+ALTER TABLE sessions ADD
     FOREIGN KEY(control_id)
-    REFERENCES users(id)
-    ON DELETE no action
-    ON UPDATE no action;
+    REFERENCES users(id);
 
 CREATE TABLE IF NOT EXISTS urls(
     id INT AUTO_INCREMENT NOT NULL,
@@ -40,16 +41,12 @@ CREATE TABLE IF NOT EXISTS user_url(
     tags TEXT(2048),
     PRIMARY KEY(id)
 );
-ALTER TABLE user_url ADD CONSTRAINT fk_user
+ALTER TABLE user_url ADD
     FOREIGN KEY(user_id)
-    REFERENCES users(id)
-    ON DELETE no action
-    ON UPDATE no action;
-ALTER TABLE user_url ADD CONSTRAINT fk_url
+    REFERENCES users(id);
+ALTER TABLE user_url ADD
     FOREIGN KEY(url_id)
-    REFERENCES urls(id)
-    ON DELETE no action
-    ON UPDATE no action;
+    REFERENCES urls(id);
 
 
 CREATE TABLE IF NOT EXISTS config(
@@ -61,10 +58,8 @@ CREATE TABLE IF NOT EXISTS config(
     start TINYINT NOT NULL DEFAULT 8,
     PRIMARY KEY(id)
 );
-ALTER TABLE config ADD CONSTRAINT fk_config
+ALTER TABLE config ADD
     FOREIGN KEY(user_id)
-    REFERENCES users(id)
-    ON DELETE no action
-    ON UPDATE no action;
+    REFERENCES users(id);
 
 commit;
