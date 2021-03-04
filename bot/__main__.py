@@ -4,6 +4,7 @@ from time import sleep
 import update
 from app import App
 from pyrogram import idle
+import commands
 
 App.start()
 
