@@ -16,7 +16,3 @@ async def getChatId(client, message) -> int:
     except:
         pass
     return message.chat.id
-
-
-async def havePermition(client, message, id: int) -> bool:
-    return True

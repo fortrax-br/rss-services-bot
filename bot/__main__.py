@@ -6,7 +6,7 @@ import update
 
 App.start()
 
-Thread(target=update.run, args=(App,)).start()
+#Thread(target=update.run, args=(App,)).start()
 
 idle()
 

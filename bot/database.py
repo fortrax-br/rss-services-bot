@@ -62,10 +62,10 @@ class mysql:
         self.execute(command)
         return True
 
-    def createConfig(self, userId: int) -> bool:
-        if self.getConfig(userId):
+    def createConfig(self, chatId: int) -> bool:
+        if self.getConfig(chatId):
             return False
-        command: str = f"INSERT INTO config(user_id) VALUES ('{userId}');"
+        command: str = f"INSERT INTO config(chat_id) VALUES ('{chatId}');"
         self.execute(command)
         return True
 
@@ -97,8 +97,8 @@ class mysql:
             return result[0][0]
         return -1
 
-    def getConfig(self, userId: int) -> list:
-        query: str = f"SELECT max_news, timer FROM config WHERE user_id = '{userId}';"
+    def getConfig(self, chatId: int) -> list:
+        query: str = f"SELECT max_news, timer FROM config WHERE chat_id = '{chatId}';"
         result: list = self.execute(query)
         return result
 
@@ -107,9 +107,9 @@ class mysql:
         result: list = self.execute(query)
         return query
 
-    def getLimit(self, userId: int) -> int:
-        self.createConfig(userId)
-        query: str = f"SELECT max_news FROM config WHERE user_id = '{userId}';"
+    def getLimit(self, chatId: int) -> int:
+        self.createConfig(chatId)
+        query: str = f"SELECT max_news FROM config WHERE chat_id = '{chatId}';"
         result: list = self.execute(query)
         return result[0][0]
 
@@ -138,7 +138,7 @@ class mysql:
 
     def getUserUrls(self, userId: int) -> list:
         query: str = f"SELECT urls.* FROM urls, user_url WHERE user_url.user_id='{userId}' AND user_url.url_id=urls.id;"
-        result: lsit = self.execute(query)
+        result: list = self.execute(query)
         return result
 
     def setLastUpdate(self, userId: int, last: str) -> None:
@@ -146,12 +146,13 @@ class mysql:
         command: str = f"UPDATE config SET last_update = '{last}' WHERE user_id = '{userId}';"
         self.execute(command)
 
-    def setLimit(self, userId: int, limit: int) -> None:
-        self.createConfig(userId)
-        command: str = f"UPDATE config SET max_news = '{limit}' WHERE user_id = '{userId}';"
+    def setLimit(self, chatId: int, limit: int) -> None:
+        self.createConfig(chatId)
+        command: str = f"UPDATE config SET max_news = '{limit}' WHERE chat_id = '{chatId}';"
         self.execute(command)
 
-    def setTimer(self, userId: int, timer: int) -> None:
+    def setTimer(self, chat_id: int, timer: int) -> None:
         self.createConfig(userId)
+        userId: int = self.getUserId(chat_id)
         command: str = f"UPDATE config SET timer = '{timer}' WHERE user_id='{userId}';"
         self.execute(command)
