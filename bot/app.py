@@ -41,9 +41,6 @@ async def help(client: Client, message: Message) -> None:
 @App.on_message(filters.command("add"))
 async def add(client: Client, message: Message):
     userId = await extra.getChatId(client, message)
-    permition = await extra.havePermition(client, message, userId)
-    if not permition:
-        return
     user = findall(r"\(.*\)", message.text)
     if user:
         message.text = message.text.replace(user[0], "")
@@ -68,10 +65,7 @@ async def add(client: Client, message: Message):
 @App.on_message(filters.command("list"))
 async def listRss(client: Client, message: Message):
     userId = await extra.getChatId(client, message)
-    permition = await extra.havePermition(client, message, userId)
-    if not permition:
-        return
-    rssList: list = client.database.getRSS(userId)
+    rssList: list = client.database.getUserUrls(userId)
     if not rssList:
         await message.reply("Você ainda não adicionou nenhum serviço!")
         return
@@ -84,10 +78,7 @@ async def listRss(client: Client, message: Message):
 @App.on_message(filters.command("remove"))
 async def remove(client: Client, message: Message):
     userId = await extra.getChatId(client, message)
-    permition = await extra.havePermition(client, message, userId)
-    if not permition:
-        return
-    rssList: list = client.database.getRSS(userId)
+    rssList: list = client.database.getUserUrls(userId)
     if not rssList:
         await message.reply("Você ainda não conectou este chat em nenhum serviço RSS.")
         return
@@ -116,6 +107,9 @@ async def limit(client: Client, message: Message):
         limit = int(params[1])
     except:
         await message.reply("Eu preciso de um número!")
+        return
+    if limit < 1:
+        await message.reply("Só posso mandar algo se o número for maior que 0(zero)!")
         return
     client.database.setLimit(userId, limit)
     await message.reply("Limite atualizado.")

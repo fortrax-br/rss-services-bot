@@ -119,8 +119,8 @@ class mysql:
         result: list = self.execute(query)
         return result[0][0]
 
-    def getUrl(self, id: int) -> list:
-        query: str = f"SELECT urls.title, urls.url FROM user_url, users WHERE user_url.url_id=urls.id AND user_url.user_id={id};"
+    def getUrl(self, userId: int) -> list:
+        query: str = f"SELECT urls.title, urls.url FROM user_url, users WHERE user_url.url_id=urls.id AND user_url.user_id={userId};"
         result: list = self.execute(query)
         return result
 
@@ -137,7 +137,7 @@ class mysql:
         return -1
 
     def getUserUrls(self, userId: int) -> list:
-        query: str = f"SELECT urls.id, urls.url FROM urls, user_url WHERE user_url.user_id='{userId}' AND user_url.url_id=urls.id;"
+        query: str = f"SELECT urls.* FROM urls, user_url WHERE user_url.user_id='{userId}' AND user_url.url_id=urls.id;"
         result: lsit = self.execute(query)
         return result
 
