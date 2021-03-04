@@ -69,7 +69,8 @@ class mysql:
         self.execute(command)
         return True
 
-    def deleteService(self, userId: int, urlId: int) -> None:
+    def deleteService(self, chatId: int, urlId: int) -> None:
+        userId: int = self.getUserId(chatId)
         command: str = f"DELETE FROM user_url WHERE user_id = '{userId}' AND url_id = '{urlId}'"
         self.execute(command)
 
@@ -136,8 +137,9 @@ class mysql:
             return result[0][0]
         return -1
 
-    def getUserUrls(self, userId: int) -> list:
-        query: str = f"SELECT urls.* FROM urls, user_url WHERE user_url.user_id='{userId}' AND user_url.url_id=urls.id;"
+    def getUserUrls(self, chatId: int) -> list:
+        userId: int = self.getUserId(chatId)
+        query: str = f"SELECT urls.*, user_url.tags FROM urls, user_url WHERE user_url.user_id='{userId}' AND user_url.url_id=urls.id;"
         result: list = self.execute(query)
         return result
 

@@ -1,5 +1,6 @@
 from re import findall
 
+
 async def getChatId(client, message) -> int:
     marked = findall(r"\((.*)\)", message.text)
     if marked:

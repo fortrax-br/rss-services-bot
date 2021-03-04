@@ -1,8 +1,9 @@
-from pyrogram import idle
-from app import App
 from threading import Thread
 from time import sleep
+
 import update
+from app import App
+from pyrogram import idle
 
 App.start()
 

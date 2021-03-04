@@ -1,4 +1,7 @@
-import bot.database, json
+import json
+
+import bot.database
+
 conf = json.load(open("bot.json"))
 db = bot.database.mysql(**conf["mysql"])
 print(db.getAllChats())

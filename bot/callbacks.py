@@ -3,10 +3,9 @@ async def handler(client, callback):
     if data[0] == "remove":
         await removeRSS(client, callback, int(data[1]))
 
-async def removeRSS(client, callback, id: str):
-    print(callback)
+async def removeRSS(client, callback, urlId: str):
     message = callback.message
-    client.database.deleteRSS(id)
+    client.database.deleteService(message.chat.id, urlId)
     for button in callback.message.reply_markup.inline_keyboard:
         if button[0].callback_data == callback.data:
             title = button[0].text
