@@ -4,4 +4,5 @@ __pycache__
 RSS.session
 test/
 test.py
-*.swp
+*swp
+.vscode

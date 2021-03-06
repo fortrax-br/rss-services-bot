@@ -2,9 +2,7 @@ from json import load
 
 import callbacks
 import database
-import extra
-import rss
-from pyrogram import Client, filters
+from pyrogram import Client
 from pyrogram.handlers import CallbackQueryHandler
 
 App: Client = Client("RSS")

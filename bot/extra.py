@@ -1,19 +1,29 @@
-from re import findall
+from time import time
 
 
-async def getChatId(client, message) -> int:
-    marked = findall(r"\((.*)\)", message.text)
-    if marked:
-        message.text = marked[0]
-    try:
-        return int(message.text)
-    except ValueError:
-        pass
-    if "t.me" in message.text:
-        message.text = message.text.split("/")[-1]
-    try:
-        chat = await client.get_chat(message.text)
-        return chat.id
-    except:
-        pass
-    return message.chat.id
+async def getChatId(client, message, add=False) -> int:
+    params: list = message.text.split(" ")
+    if add is True and len(params) == 1:
+        return -1
+    elif add and len(params) >= 2:
+        user: str = params[-1].strip()
+        if "t.me" in user:
+            user = user.split("/")[-1]
+        try:
+            chatInfo = await client.get_chat(user)
+        except Exception:
+            return -2
+        if chatInfo.type in ("private", "bot"):  # Private not is permited
+            return -3
+        elif not chatInfo.permissions:  # Bot not in group/channel
+            return -4
+        else:
+            return chatInfo.id
+    else:
+        session, started = client.database.getSession(message.chat.id)
+        if session != -1 and (time() - started) > 3600:
+            client.database.deleteSession(message.chat.id)
+            await message.reply("Sessão anterior fechada!")
+        elif session != -1:
+            return session
+        return message.chat.id

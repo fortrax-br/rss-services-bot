@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS config(
 );
 
 CREATE TABLE IF NOT EXISTS sessions(
-    user_id BIGINT NOT NULL,
+    chat_id BIGINT NOT NULL,
     control_id BIGINT NOT NULL,
     started INT NOT NULL
 );
