@@ -35,7 +35,9 @@ async def help(client, message: Message) -> None:
   - Lista os serviços ativos;
 `/session @username`
   - Inicia uma sessão com o usuário mencionado
-  Atenção: Este comando só funciona para grupos e canais.""",
+  Atenção: Este comando só funciona para grupos e canais;
+`/delsession`
+  - Apaga a sessão atual e volta para seu usuário normal.""",
         parse_mode="markdown"
     )
 
@@ -126,7 +128,7 @@ async def limit(client, message: Message):
 @App.on_message(filters.command("session"))
 async def session(client, message: Message):
     chatId: int = await extra.getChatId(client, message, True)
-    if chatId < 0 and chatId > -5:
+    if chatId < 0 and chatId >= -5:
         if chatId == -1:
             err = "Canal/grupo para iniciar a sessão não informado!"
         elif chatId == -2:
@@ -135,6 +137,8 @@ async def session(client, message: Message):
             err = "Você não pode colocar um chat privado ou um bot!"
         elif chatId == -4:
             err = "Eu não estou nesse canal/grupo!"
+        elif chatId == -5:
+            err = "Você não é um administrador do grupo/canal!"
         await message.reply(err)
         return
     ok: bool = client.database.createSession(message.chat.id, chatId)
@@ -147,4 +151,4 @@ async def session(client, message: Message):
 @App.on_message(filters.command("delsession"))
 async def delSession(client, message: Message):
     client.database.deleteSession(message.chat.id)
-    await message.reply("Quaisquer sessão que estevesse ativa foi desativada.")
+    await message.reply("Quaisquer sessão que estivesse ativa foi desativada.")

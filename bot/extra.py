@@ -17,8 +17,14 @@ async def getChatId(client, message, add=False) -> int:
             return -3
         elif not chatInfo.permissions:  # Bot not in group/channel
             return -4
-        else:
-            return chatInfo.id
+        admins = await client.get_chat_members(
+            chatInfo.id,
+            filter="administrators"
+        )
+        for admin in admins:
+            if admin.user.id == message.from_user.id:
+                return chatInfo.id
+        return -5
     else:
         session, started = client.database.getSession(message.chat.id)
         if session != -1 and (time() - started) > 3600:
