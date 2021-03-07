@@ -47,19 +47,6 @@ async def add(client, message: Message):
     )
 
 
-@App.on_message(filters.command("list"))
-async def listRss(client, message: Message):
-    userId = await extra.getChatId(client, message)
-    rssList: list = client.database.getUserUrls(userId)
-    if not rssList:
-        await message.reply("Você ainda não adicionou nenhum serviço!")
-        return
-    text: str = "Os seguintes serviços estão cadastrados no chat:\n\n"
-    for service in rssList:
-        text += f"  - [{service[1]}]({service[2]}) Tags: {service[3]}\n"
-    await message.reply(text)
-
-
 @App.on_message(filters.command("remove"))
 async def remove(client, message: Message):
     chatId = await extra.getChatId(client, message)

@@ -1,5 +1,5 @@
-from extra import *
-from .remove import *
+from .remove import removeServiceConfirm, removeServiceMenu, removeServiceOk
+from .listServices import listServices
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 
@@ -15,6 +15,8 @@ async def handler(client, callback):
         await removeServiceConfirm(client, callback, int(data[0]))
     elif command == "removeServiceOk":
         await removeServiceOk(client, callback, int(data[0]))
+    elif command == "services":
+        await listServices(client, callback)
 
 
 async def menu(client, callback):
@@ -34,7 +36,7 @@ async def menu(client, callback):
             )],
             [InlineKeyboardButton(
                 "🗞 Seus serviços",
-                callback_data="show"
+                callback_data="services"
             )],
             [InlineKeyboardButton(
                 "🗑 Remover algum serviço",

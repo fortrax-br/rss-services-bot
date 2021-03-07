@@ -1,4 +1,4 @@
-from extra import *
+from extra import getChatId, back
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 
