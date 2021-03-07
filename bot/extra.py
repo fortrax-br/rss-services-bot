@@ -1,4 +1,9 @@
 from time import time
+from pyrogram.types import InlineKeyboardButton
+
+
+def back(f):
+    return [InlineKeyboardButton("« Voltar", callback_data=f)]
 
 
 async def getChatId(client, message, add=False) -> int:
