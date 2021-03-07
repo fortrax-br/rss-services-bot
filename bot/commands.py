@@ -14,31 +14,12 @@ async def start(client, message: Message) -> None:
             [InlineKeyboardButton(
                 "Adicionar em um canal/grupo",
                 url=f"http://t.me/{me.username}?startgroup=botstart"
+            )],
+            [InlineKeyboardButton(
+                "Painel de controle",
+                callback_data="menu"
             )]
         ])
-    )
-
-
-@App.on_message(filters.command("help"))
-async def help(client, message: Message) -> None:
-    await message.reply(
-        """Muito bem, eu tenho os seguintes comandos:\n
-`/add url <tags>`
-  - Adiciona um serviço na lista, `tags` é opcional;\n
-`/list`
-  - Lista os seus serviços já adicionados;\n
-`/remove`
-  - Lhe envia a sua lista de serviços para você escolher qual remover;
-`/limit <N>`
-  - Define o limite de noticias por serviço para N;
-`/list`
-  - Lista os serviços ativos;
-`/session @username`
-  - Inicia uma sessão com o usuário mencionado
-  Atenção: Este comando só funciona para grupos e canais;
-`/delsession`
-  - Apaga a sessão atual e volta para seu usuário normal.""",
-        parse_mode="markdown"
     )
 
 

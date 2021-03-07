@@ -49,7 +49,7 @@ class mysql:
                 tag = "#" + tag
             tagsStr += " " + tag
         command: str = "INSERT INTO user_url VALUES (DEFAULT, "
-        command += f", '{userId}', '{urlId}', "
+        command += f"'{userId}', '{urlId}', "
         if tags:
             command += f"'{tagsStr}'"
         else:
