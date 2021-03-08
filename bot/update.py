@@ -3,8 +3,11 @@ from time import sleep
 import rss
 
 
+stop: bool = False
+
 def run(client, *args) -> None:
-    while True:
+    global stop
+    while not stop:
         print("Atualizando...")
         urls: list = client.database.getAllUrl()
         for id, url in urls:
@@ -28,11 +31,13 @@ def sendNews(client, urlId: int, news: dict) -> bool:
             elif lastUpdate[0][0] == new["published"] or count == limit:
                 break
             try:
-                print(f"Enviando {count}/{limit} para {chatId}...")
                 message: str = f"**{new['title']}**\n{tags}\n"
                 message += f"__{new['published']} pelo serviço {news['feed']['title']}__\n\n"
                 message += f"```{new['description']}```\n\n"
                 message += f"[Visitar o site]({new['link']})"
+                if len(message) > 4096:
+                    continue
+                print(f"[{urlId}] Enviando {count}/{limit} para {chatId}...")
                 client.send_message(
                     chat_id=chatId,
                     text=message,
@@ -49,4 +54,4 @@ def sendNews(client, urlId: int, news: dict) -> bool:
             urlId=urlId,
             last=news["entries"][0]["published"]
         )
-        return True
+    return True

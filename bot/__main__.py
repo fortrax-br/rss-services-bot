@@ -1,15 +1,14 @@
 from threading import Thread
-
-import update
-import commands as _
 from app import App
 from pyrogram import idle
 
-print("iniciando...")
+import update
+import commands
+import sys
+
+
+print("Pressione CTRL+\\ quando quiser sair...")
 App.start()
-Thread(target=update.run, args=(App,)).start()
-print("Travando")
+up = Thread(target=update.run, args=(App,))
+up.start()
 idle()
-App.stop()
-print("Saindo...")
-exit()
