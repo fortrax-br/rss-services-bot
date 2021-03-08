@@ -47,29 +47,6 @@ async def add(client, message: Message):
     )
 
 
-@App.on_message(filters.command("remove"))
-async def remove(client, message: Message):
-    chatId = await extra.getChatId(client, message)
-    rssList: list = client.database.getUserUrls(chatId)
-    if not rssList:
-        await message.reply(
-            "Você ainda não conectou este chat em nenhum serviço RSS."
-        )
-        return
-    buttons: list = []
-    for rssService in rssList:
-        buttons.append([
-            InlineKeyboardButton(
-                rssService[1],
-                callback_data=f"remove {rssService[0]}"
-            )
-        ])
-    await message.reply(
-        "Escolha qual você deseja remover:",
-        reply_markup=InlineKeyboardMarkup(buttons)
-    )
-
-
 @App.on_message(filters.command("limit"))
 async def limit(client, message: Message):
     chatId = await extra.getChatId(client, message)
@@ -96,18 +73,8 @@ async def limit(client, message: Message):
 @App.on_message(filters.command("session"))
 async def session(client, message: Message):
     chatId: int = await extra.getChatId(client, message, True)
-    if chatId < 0 and chatId >= -5:
-        if chatId == -1:
-            err = "Canal/grupo para iniciar a sessão não informado!"
-        elif chatId == -2:
-            err = "Erro ao obter as informações do chat!"
-        elif chatId == -3:
-            err = "Você não pode colocar um chat privado ou um bot!"
-        elif chatId == -4:
-            err = "Eu não estou nesse canal/grupo!"
-        elif chatId == -5:
-            err = "Você não é um administrador do grupo/canal!"
-        await message.reply(err)
+    if chatId in extra.errors:
+        await message.reply(extra.errors[chatId])
         return
     ok: bool = client.database.createSession(message.chat.id, chatId)
     if ok:

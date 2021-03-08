@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS user_url(
     user_id INT NOT NULL,
     url_id INT NOT NULL,
     tags TEXT(2048),
+    last_update INT,
     PRIMARY KEY(id)
 );
 ALTER TABLE user_url ADD
@@ -36,9 +37,10 @@ CREATE TABLE IF NOT EXISTS config(
     id INT AUTO_INCREMENT NOT NULL,
     chat_id BIGINT NOT NULL,
     max_news INT NOT NULL DEFAULT 5,
-    last_update INT,
     timer TINYINT NOT NULL DEFAULT 24,
     first_send TINYINT NOT NULL DEFAULT 8,
+    last_send TINYINT NOT NULL DEFAULT 20,
+    fuso TINYINT NOT NULL DEFAULT 0,
     PRIMARY KEY(id)
 );
 

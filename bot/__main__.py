@@ -1,10 +1,10 @@
 from threading import Thread
 from time import sleep
 
+import commands
 import update
 from app import App
 from pyrogram import idle
-import commands
 
 App.start()
 

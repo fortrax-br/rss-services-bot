@@ -1,5 +1,6 @@
-from mysql.connector import connect as myConnect
 from time import time
+
+from mysql.connector import connect as myConnect
 
 
 class mysql:
@@ -48,8 +49,8 @@ class mysql:
             elif tag[0] != "#":
                 tag = "#" + tag
             tagsStr += " " + tag
-        command: str = "INSERT INTO user_url VALUES (DEFAULT, "
-        command += f"'{userId}', '{urlId}', "
+        command: str = f"INSERT INTO user_url(user_id, url_id, tags) \
+            VALUES ('{userId}', '{urlId}', "
         if tags:
             command += f"'{tagsStr}'"
         else:
@@ -115,11 +116,12 @@ class mysql:
             return result[0][0]
         return -1
 
-    def getConfig(self, chatId: int) -> list:
-        query: str = f"SELECT max_news, timer FROM config \
+    def getConfig(self, chatId: int) -> tuple:
+        query: str = f"SELECT max_news, timer, first_send, last_send \
+            FROM config \
             WHERE chat_id = '{chatId}';"
         result: list = self.execute(query)
-        return result
+        return result[0]
 
     def getLastUpdate(self, userId: int) -> list:
         query: str = f"SELECT last_update FROM config WHERE \

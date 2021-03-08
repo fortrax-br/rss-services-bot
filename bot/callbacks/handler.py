@@ -1,6 +1,8 @@
-from .remove import removeServiceConfirm, removeServiceMenu, removeServiceOk
-from .listServices import listServices
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+
+from .config import config
+from .listServices import listServices
+from .remove import removeServiceConfirm, removeServiceMenu, removeServiceOk
 
 
 async def handler(client, callback):
@@ -17,6 +19,8 @@ async def handler(client, callback):
         await removeServiceOk(client, callback, int(data[0]))
     elif command == "services":
         await listServices(client, callback)
+    elif command == "config":
+        await config(client, callback)
 
 
 async def menu(client, callback):

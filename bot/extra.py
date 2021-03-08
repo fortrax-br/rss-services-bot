@@ -1,8 +1,17 @@
 from time import time
+
 from pyrogram.types import InlineKeyboardButton
 
+errors: dict = {
+    -1: "Canal/grupo para iniciar a sessão não informado!",
+    -2: "Erro ao obter as informações do chat!",
+    -3: "Você não pode colocar um chat privado ou um bot!",
+    -4: "Eu não estou nesse canal/grupo!",
+    -5: "Você não é um administrador do grupo/canal!"
+}
 
-def back(f):
+
+def back(f: str) -> list:
     return [InlineKeyboardButton("« Voltar", callback_data=f)]
 
 

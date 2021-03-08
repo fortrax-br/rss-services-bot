@@ -1,7 +1,7 @@
 from json import load
 
-from callbacks.handler import handler
 import database
+from callbacks.handler import handler
 from pyrogram import Client
 from pyrogram.handlers import CallbackQueryHandler
 
