@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS user_url(
     user_id INT NOT NULL,
     url_id INT NOT NULL,
     tags TEXT(2048),
-    last_update INT,
+    last_update TEXT,
     PRIMARY KEY(id)
 );
 ALTER TABLE user_url ADD

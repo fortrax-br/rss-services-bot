@@ -121,11 +121,15 @@ class mysql:
             FROM config \
             WHERE chat_id = '{chatId}';"
         result: list = self.execute(query)
-        return result[0]
+        if result:
+            return result[0]
+        else:
+            return ()
 
-    def getLastUpdate(self, userId: int) -> list:
-        query: str = f"SELECT last_update FROM config WHERE \
-            user_id = '{userId}';"
+    def getLastUpdate(self, userId: int, urlId: int) -> list:
+        query: str = f"SELECT last_update FROM user_url WHERE \
+            user_id = '{userId}' AND \
+            url_id = '{urlId}';"
         result: list = self.execute(query)
         return result
 
@@ -158,7 +162,11 @@ class mysql:
         return result
 
     def getUrlChats(self, urlId: int) -> list:
-        query: str = f"SELECT user_id FROM user_url WHERE url_id='{urlId}';"
+        query: str = f"SELECT users.chat_id, users.id, user_url.tags \
+            FROM users, user_url \
+            WHERE \
+             user_url.url_id='{urlId}' AND \
+             user_url.user_id=users.id;"
         result: list = self.execute(query)
         return result
 
@@ -177,10 +185,11 @@ class mysql:
         result: list = self.execute(query)
         return result
 
-    def setLastUpdate(self, userId: int, last: str) -> None:
+    def setLastUpdate(self, userId: int, urlId: int, last: str) -> None:
         self.createConfig(userId)
-        command: str = f"UPDATE config SET last_update = '{last}' WHERE \
-            user_id = '{userId}';"
+        command: str = f"UPDATE user_url SET last_update = '{last}' WHERE \
+            user_id = '{userId}' AND \
+            url_id = '{urlId}';"
         self.execute(command)
 
     def setLimit(self, chatId: int, limit: int) -> None:

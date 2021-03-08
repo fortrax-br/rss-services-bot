@@ -7,6 +7,7 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 @App.on_message(filters.command("start"))
 async def start(client, message: Message) -> None:
+    print("nova mensagem")
     me = await client.get_me()
     await message.reply(
         "Olá, você pode ver os meus comandos enviando /help",
