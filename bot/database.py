@@ -52,7 +52,7 @@ class mysql:
         command: str = f"INSERT INTO user_url(user_id, url_id, tags) \
             VALUES ('{userId}', '{urlId}', "
         if tags:
-            command += f"'{tagsStr}'"
+            command += f"'{tagsStr.strip()}'"
         else:
             command += "DEFAULT"
         self.execute(command+");")

@@ -1,11 +1,18 @@
 import extra
 import rss
-from app import App
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram.handlers import MessageHandler
 
 
-@App.on_message(filters.command("start"))
+def register(app) -> None:
+    app.add_handler(MessageHandler(start, filters.command("start")))
+    app.add_handler(MessageHandler(add, filters.command("add")))
+    app.add_handler(MessageHandler(limit, filters.command("limit")))
+    app.add_handler(MessageHandler(session, filters.command("session")))
+    app.add_handler(MessageHandler(delSession, filters.command("delsession")))
+
+
 async def start(client, message: Message) -> None:
     print("nova mensagem")
     me = await client.get_me()
@@ -24,7 +31,6 @@ async def start(client, message: Message) -> None:
     )
 
 
-@App.on_message(filters.command("add"))
 async def add(client, message: Message):
     userId = await extra.getChatId(client, message)
     params: list = message.text.split()
@@ -48,7 +54,6 @@ async def add(client, message: Message):
     )
 
 
-@App.on_message(filters.command("limit"))
 async def limit(client, message: Message):
     chatId = await extra.getChatId(client, message)
     print(chatId)
@@ -71,7 +76,6 @@ async def limit(client, message: Message):
     await message.reply("Limite atualizado.")
 
 
-@App.on_message(filters.command("session"))
 async def session(client, message: Message):
     chatId: int = await extra.getChatId(client, message, True)
     if chatId in extra.errors:
@@ -84,7 +88,6 @@ async def session(client, message: Message):
         await message.reply("Você já tem uma sessão ativa, para ele primeiro.")
 
 
-@App.on_message(filters.command("delsession"))
 async def delSession(client, message: Message):
     client.database.deleteSession(message.chat.id)
     await message.reply("Quaisquer sessão que estivesse ativa foi desativada.")

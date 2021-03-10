@@ -1,22 +1,26 @@
-from time import sleep
-
 import rss
+from time import sleep, strftime
 
-
-stop: bool = False
 
 def run(client, *args) -> None:
-    global stop
-    while not stop:
-        print("Atualizando...")
-        urls: list = client.database.getAllUrl()
-        for id, url in urls:
-            news: dict = rss.getNews(url)
-            ok: bool = sendNews(client, id, news)
-            if not ok:
-                return
-        print("Dormindo por 10 segundos...")
-        sleep(10)
+    lastUpdate: int = None
+    while True:
+        t: int = int(strftime("%M"))
+        if (t / 10).is_integer() and lastUpdate != t:
+            lastUpdate = t
+            update(client)
+        sleep(1)
+
+
+def update(client) -> None:
+    print("Atualizando...")
+    urls: list = client.database.getAllUrl()
+    for id, url in urls:
+        news: dict = rss.getNews(url)
+        ok: bool = sendNews(client, id, news)
+        if not ok:
+            return
+    print("Pronto.")
 
 
 def sendNews(client, urlId: int, news: dict) -> bool:

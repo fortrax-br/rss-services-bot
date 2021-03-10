@@ -4,11 +4,10 @@ from pyrogram import idle
 
 import update
 import commands
-import sys
 
 
 print("Pressione CTRL+\\ quando quiser sair...")
+commands.register(App)
 App.start()
-up = Thread(target=update.run, args=(App,))
-up.start()
+Thread(target=update.run, args=(App,)).start()
 idle()
