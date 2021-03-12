@@ -2,6 +2,7 @@ import rss
 from extra import getUTC
 from time import sleep, strftime
 from threading import Thread
+from bs4 import BeautifulSoup
 
 
 news: dict = {}
@@ -18,16 +19,20 @@ def run(client, *args) -> None:
 
 
 def update(client) -> None:
+    global news
     time = getUTC()
     chats: list = client.database.getChatsByHours(time)
-    print(time, chats)
     for chatId in chats:
         urls: list = client.database.getUserUrls(chatId[0])
         for id, url, limit, lastUpdate, tags in urls:
-            news: dict = rss.getNews(url)
+            if url in news:
+                if (time()-news[url][1]) > 10:
+                    news[url] = [rss.getNews(url), time()]
+            else:
+                news[url] = [rss.getNews(url), time()]
             Thread(
                 target=sendNews,
-                args=(client, id, chatId[0], limit, lastUpdate, tags, news,)
+                args=(client, id, chatId[0], limit, lastUpdate, tags, news[0],)
             ).start()
 
 
@@ -36,7 +41,6 @@ def sendNews(client, urlId: int, chatId: int, limit: int,
     count: int = 0
     if not limit:
         limit: int = client.database.getLimit(chatId)
-    print(lastUpdate)
     for new in news["entries"]:
         if count == limit:
             break
@@ -45,11 +49,12 @@ def sendNews(client, urlId: int, chatId: int, limit: int,
         elif lastUpdate == new["published"]:
             break
         try:
+            description = BeautifulSoup(new["description"], "html.parser").text
             message: str = f"""**{new['title']}**
 {tags}
 __{new['published']} usando o serviço de noticias {news['feed']['title']}__
 
-```{new['description']}```
+```{description}```
 
 🌐[Visitar o site]({new['link']})"""
             if len(message) > 4096:

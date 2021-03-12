@@ -1,5 +1,4 @@
 from time import time
-
 from mysql.connector import connect as mySQL
 
 
@@ -104,22 +103,10 @@ class mysql:
         command: str = f"DELETE FROM sessions WHERE chat_id='{chatId}';"
         self.execute(command)
 
-    def getAllChats(self) -> list:
-        query: str = "SELECT * FROM users;"
-        result: list = self.execute(query)
-        return result
-
-    def getAllUrl(self) -> list:
-        query: str = "SELECT id, url FROM urls;"
-        result: list = self.execute(query)
-        return result
-
-    def getChatTelegramId(self, id: int) -> int:
-        query: str = f"SELECT chat_id FROM users WHERE id = {id};"
-        result: list = self.execute(query)
-        if result:
-            return result[0][0]
-        return -1
+    def deleteTimer(self, chatId: int, timer: str) -> None:
+        command: str = f"DELETE FROM timers WHERE chat_id='{chatId}' \
+            AND timer='{timer}';"
+        self.execute(command)
 
     def getTimers(self, chatId: int) -> list:
         query: str = f"SELECT timer FROM timers WHERE chat_id='{chatId}';"
@@ -168,24 +155,6 @@ class mysql:
             return result[0]
         return -1, 0
 
-    def getUrl(self, userId: int) -> list:
-        query: str = f"SELECT urls.title, urls.url FROM user_url, users \
-            WHERE \
-                user_url.url_id=urls.id AND \
-                user_url.user_id={userId};"
-        result: list = self.execute(query)
-        return result
-
-    def getUrlChats(self, urlId: int) -> list:
-        query: str = f"SELECT users.chat_id, users.id, \
-            user_url.tags, user_url.max_news \
-             FROM users, user_url \
-             WHERE \
-              user_url.url_id='{urlId}' AND \
-              user_url.user_id=users.id;"
-        result: list = self.execute(query)
-        return result
-
     def getUrlId(self, url: str) -> int:
         query: str = f"SELECT id FROM urls WHERE url = '{url}';"
         result: list = self.execute(query)
@@ -196,6 +165,15 @@ class mysql:
     def getUserUrls(self, chatId: int) -> list:
         userId: int = self.getUserId(chatId)
         query: str = f"SELECT urls.id, urls.url, user_url.max_news, user_url.last_update, \
+            user_url.tags FROM urls, user_url WHERE \
+            user_url.user_id='{userId}' AND \
+            user_url.url_id=urls.id;"
+        result: list = self.execute(query)
+        return result
+
+    def getUserUrlsSimple(self, chatId: int) -> list:
+        userId: int = self.getUserId(chatId)
+        query: str = f"SELECT urls.id, urls.title, urls.url, user_url.max_news, \
             user_url.tags FROM urls, user_url WHERE \
             user_url.user_id='{userId}' AND \
             user_url.url_id=urls.id;"

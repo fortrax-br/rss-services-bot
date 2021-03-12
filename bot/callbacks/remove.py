@@ -5,7 +5,7 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 async def removeServiceMenu(client, callback):
     message = callback.message
     chatId = await getChatId(client, message)
-    rssList: list = client.database.getUserUrls(chatId)
+    rssList: list = client.database.getUserUrlsSimple(chatId)
     if not rssList:
         await client.edit_message_text(
             message_id=message.message_id,
@@ -49,7 +49,7 @@ async def removeServiceConfirm(client, callback, urlId: int):
                 ),
                 InlineKeyboardButton(
                     "❌ Não",
-                    callback_data="removeServiceMenu"
+                    callback_data="cancel"
                 )
             ]
         ])

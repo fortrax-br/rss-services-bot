@@ -13,7 +13,7 @@ errors: dict = {
 
 def getUTC() -> str:
     fuso: int = int(strftime("%Z"))
-    hours = int(strftime("%H")) + fuso
+    hours = int(strftime("%H")) + -(fuso)
     result: str = addZero(hours) + ":" + strftime("%M")
     return result
 
