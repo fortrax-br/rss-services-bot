@@ -1,4 +1,4 @@
-from time import time
+from time import time, strftime
 
 from pyrogram.types import InlineKeyboardButton
 
@@ -9,6 +9,21 @@ errors: dict = {
     -4: "Eu não estou nesse canal/grupo!",
     -5: "Você não é um administrador do grupo/canal!"
 }
+
+
+def getUTC() -> str:
+    fuso: int = int(strftime("%Z"))
+    hours = int(strftime("%H")) + fuso
+    result: str = addZero(hours) + ":" + strftime("%M")
+    return result
+
+
+def addZero(time: int) -> str:
+    result: str = ""
+    if time < 10:
+        result += "0"
+    result += str(time)
+    return result
 
 
 def back(f: str) -> list:

@@ -10,11 +10,15 @@ async def config(client, callback):
     if chatId != msg.chat.id:
         session = "Sim"
     config: tuple = client.database.getConfig(chatId)
+    timers: tuple = client.database.getTimers(chatId)
     text: str = f"""Você está em uma sessão? {session}
-O limite de novas noticias por vez é {config[0]}
-O tempo de espera entre um envio e outro é de {config[1]} horas
-O primeiro envio é as {config[2]}:00 horas
-O último envio é as {config[3]}:00 horas"""
+O limite padrão de novas noticias é {config[0]}\n\n"""
+    if timers:
+        text += "Os horários de envio são:\n\n"
+        for time in timers:
+            text += f" - {time[0]}\n"
+    else:
+        text += "Você ainda não registrou o horário de envio de suas noticias!"
     await client.edit_message_text(
         message_id=msg.message_id,
         chat_id=msg.chat.id,

@@ -1,5 +1,6 @@
 import extra
 import rss
+from re import findall
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 from pyrogram.handlers import MessageHandler
@@ -11,10 +12,10 @@ def register(app) -> None:
     app.add_handler(MessageHandler(limit, filters.command("limit")))
     app.add_handler(MessageHandler(session, filters.command("session")))
     app.add_handler(MessageHandler(delSession, filters.command("delsession")))
+    app.add_handler(MessageHandler(addTimer, filters.command("addtime")))
 
 
 async def start(client, message: Message) -> None:
-    print("nova mensagem")
     me = await client.get_me()
     await message.reply(
         "Olá, você pode ver os meus comandos enviando /help",
@@ -33,6 +34,12 @@ async def start(client, message: Message) -> None:
 
 async def add(client, message: Message):
     userId = await extra.getChatId(client, message)
+    limit = findall(r"\(([0-9]+)\)", message.text)
+    if limit:
+        message.text = message.text.replace(f"({limit[0]})", "")
+        limit = int(limit[0])
+    else:
+        limit = None
     params: list = message.text.split()
     if len(params) == 1:
         await message.reply("Informe o link do serviço!")
@@ -46,7 +53,8 @@ async def add(client, message: Message):
         chat_id=userId,
         title=rssService["feed"]["title"],
         url=url,
-        tags=[tag.strip() for tag in params[2:]]
+        tags=[tag.strip() for tag in params[2:]],
+        limit=limit
     )
     title: str = rssService["feed"]["title"]
     await message.reply(
@@ -91,3 +99,26 @@ async def session(client, message: Message):
 async def delSession(client, message: Message):
     client.database.deleteSession(message.chat.id)
     await message.reply("Quaisquer sessão que estivesse ativa foi desativada.")
+
+
+async def addTimer(client, message: Message):
+    params: list = message.text.split()
+    if len(params) == 1:
+        await message.reply(f"Preciso que me informe uma hora para o envio! \
+O horário deve ser baseado no UTC, a hora atual nele é {extra.getUTC()}.")
+        return
+    timer: list = (params[1]+":").split(":")
+    hours: int = int(timer[0])
+    minutes: int = int(timer[1])
+    hourIsValid: bool = hours >= 0 and hours <= 23
+    minutesIsValid: bool = (minutes >= 0 and minutes <= 50) and \
+        (minutes / 10).is_integer()
+    if not (minutesIsValid and hourIsValid):
+        await message.reply("Esté horário não é válido!")
+        return
+    time: str = extra.addZero(hours)+":"+timer[1]
+    ok: bool = client.database.addTimer(message.chat.id, time)
+    if not ok:
+        await message.reply("Esté horário já esta registrado!")
+        return
+    await message.reply("Ok, horário registrado.")
