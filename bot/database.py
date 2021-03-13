@@ -16,7 +16,7 @@ class mysql:
         self.connection.autocommit = True
         self.cursor = self.connection.cursor()
         self.database = environ.get("MYSQL_DATABASE", "rssBot")
-        self.execute("USE " + environ.database + ";")
+        self.execute("USE " + self.database + ";")
         self.execute("SET FOREIGN_KEY_CHECKS = 0;")
 
     def execute(self, cmd: str) -> list:
