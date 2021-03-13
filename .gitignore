@@ -1,8 +1,4 @@
-config.ini
-bot.json
 __pycache__
 RSS.session
-test/
-test.py
 *swp
 .vscode
