@@ -1,8 +1,3 @@
-DROP DATABASE IF EXISTS rssBot;
-CREATE DATABASE rssBot DEFAULT CHARSET utf8 COLLATE = utf8_general_ci;
-use rssBot;
-
-
 CREATE TABLE users(
     id INT AUTO_INCREMENT NOT NULL,
     chat_id BIGINT NOT NULL,

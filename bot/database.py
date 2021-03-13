@@ -1,5 +1,6 @@
 from time import time
 from mysql.connector import connect as mySQL
+from os import environ
 
 
 class mysql:
@@ -14,7 +15,8 @@ class mysql:
         self.connection = mySQL(**self.mysqlConfig)
         self.connection.autocommit = True
         self.cursor = self.connection.cursor()
-        self.execute("USE rssBot;")
+        self.database = environ.get("MYSQL_DATABASE", "rssBot")
+        self.execute("USE " + environ.database + ";")
         self.execute("SET FOREIGN_KEY_CHECKS = 0;")
 
     def execute(self, cmd: str) -> list:
