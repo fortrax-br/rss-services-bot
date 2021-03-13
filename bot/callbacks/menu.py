@@ -10,7 +10,7 @@ async def menu(client, callback):
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton(
                 "📠 Todos os comandos",
-                callback_data="commands"
+                callback_data="help"
             )],
             [InlineKeyboardButton(
                 "🛠 Suas configurações",

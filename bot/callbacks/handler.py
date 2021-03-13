@@ -1,4 +1,4 @@
-from callbacks import config, listServices, remove, timer, cancel, menu
+from callbacks import config, services, timer, cancel, menu, bothelp
 
 
 async def handler(client, callback):
@@ -8,13 +8,13 @@ async def handler(client, callback):
     if command == "menu":
         await menu.menu(client, callback)
     elif command == "removeServiceMenu":
-        await remove.removeServiceMenu(client, callback)
+        await services.removeServiceMenu(client, callback)
     elif command == "removeServiceConfirm":
-        await remove.removeServiceConfirm(client, callback, int(data[0]))
+        await services.removeServiceConfirm(client, callback, int(data[0]))
     elif command == "removeServiceOk":
-        await remove.removeServiceOk(client, callback, int(data[0]))
+        await services.removeServiceOk(client, callback, int(data[0]))
     elif command == "services":
-        await listServices.listServices(client, callback)
+        await services.listServices(client, callback)
     elif command == "config":
         await config.config(client, callback)
     elif command == "timers":
@@ -27,3 +27,5 @@ async def handler(client, callback):
         await timer.ok(client, callback, data[0])
     elif command == "cancel":
         await cancel.cancel(client, callback)
+    elif command == "help":
+        await bothelp.botHelp(client, callback)
