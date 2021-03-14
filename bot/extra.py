@@ -12,8 +12,15 @@ errors: dict = {
 
 
 def getUTC() -> str:
-    fuso: int = int(strftime("%Z"))
-    hours = int(strftime("%H")) + -(fuso)
+    fusoName: str = strftime("%Z")
+    if fusoName == "UTC":
+        fuso: int = 0
+    else:
+        try:
+            fuso: int = int(fusoName)
+        except ValueError:
+            fuso: int = 0
+    hours: int = int(strftime("%H")) + -(fuso)
     result: str = addZero(hours) + ":" + strftime("%M")
     return result
 
