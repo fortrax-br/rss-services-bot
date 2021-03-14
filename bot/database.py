@@ -1,6 +1,5 @@
 from time import time
 from mysql.connector import connect as mySQL
-from mysql.connector import errors as mySQLErrors
 from os import environ
 
 
@@ -24,11 +23,11 @@ class mysql:
         try:
             self.connection.ping()
             self.cursor.execute(cmd)
-        except mySQLErrors.InterfaceError as error:
+        except Exception as error:
             if not err:
                 self.execute(cmd, err=True)
             else:
-                raise mySQLErrors.InterfaceError(error)
+                raise error
         try:
             result: list = self.cursor.fetchall()
         except Exception:
