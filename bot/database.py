@@ -25,6 +25,7 @@ class mysql:
             self.cursor.execute(cmd)
         except Exception as error:
             if not err:
+                self.connect()
                 self.execute(cmd, err=True)
             else:
                 raise error
