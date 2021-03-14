@@ -124,6 +124,7 @@ class mysql:
 
     def getChatsByHours(self, hour: str) -> list:
         query: str = f"SELECT chat_id FROM timers WHERE timer='{hour}';"
+        print(query)
         result: list = self.execute(query)
         return result
 
