@@ -124,7 +124,6 @@ class mysql:
 
     def getChatsByHours(self, hour: str) -> list:
         query: str = f"SELECT chat_id FROM timers WHERE timer='{hour}';"
-        print(query)
         result: list = self.execute(query)
         return result
 
@@ -155,7 +154,9 @@ class mysql:
         self.createConfig(chatId)
         query: str = f"SELECT max_news FROM config WHERE chat_id = '{chatId}';"
         result: list = self.execute(query)
-        return result[0][0]
+        if result:
+            return result[0][0]
+        return 5
 
     def getSession(self, chatId: int) -> [int, int]:
         query: str = f"SELECT control_id, started FROM sessions WHERE \

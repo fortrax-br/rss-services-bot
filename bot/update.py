@@ -1,6 +1,6 @@
 import rss
 from extra import getUTC
-from time import sleep, strftime
+from time import sleep, strftime, time
 from threading import Thread
 from bs4 import BeautifulSoup
 
@@ -15,13 +15,13 @@ def run(client, *args) -> None:
         if (minutes / 10).is_integer() and lastUpdate != minutes:
             lastUpdate = minutes
             Thread(target=update, args=(client,)).start()
-        sleep(5)
+        sleep(20)
 
 
 def update(client) -> None:
     global news
-    time = getUTC()
-    chats: list = client.database.getChatsByHours(time)
+    utc = getUTC()
+    chats: list = client.database.getChatsByHours(utc)
     for chatId in chats:
         urls: list = client.database.getUserUrls(chatId[0])
         for id, url, limit, lastUpdate, tags in urls:
@@ -32,7 +32,7 @@ def update(client) -> None:
                 news[url] = [rss.getNews(url), time()]
             Thread(
                 target=sendNews,
-                args=(client, id, chatId[0], limit, lastUpdate, tags, news[0],)
+                args=(client, id, chatId[0], limit, lastUpdate, tags, news[url][0],)
             ).start()
 
 
