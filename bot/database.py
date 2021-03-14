@@ -1,5 +1,6 @@
 from time import time
 from mysql.connector import connect as mySQL
+from mysql.connector import errors as mySQLErrors
 from os import environ
 
 
@@ -19,9 +20,15 @@ class mysql:
         self.execute("USE " + self.database + ";")
         self.execute("SET FOREIGN_KEY_CHECKS = 0;")
 
-    def execute(self, cmd: str) -> list:
-        self.connection.ping()
-        self.cursor.execute(cmd)
+    def execute(self, cmd: str, err: bool = False) -> list:
+        try:
+            self.connection.ping()
+            self.cursor.execute(cmd)
+        except mySQLErrors.InterfaceError as error:
+            if not err:
+                self.execute(cmd, err=True)
+            else:
+                raise mySQLErrors.InterfaceError(error)
         try:
             result: list = self.cursor.fetchall()
         except Exception:
