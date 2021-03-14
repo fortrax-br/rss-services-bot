@@ -12,8 +12,9 @@ def run(client, *args) -> None:
     lastUpdate: int = None
     while True:
         minutes: int = int(strftime("%M"))
-        if (minutes / 10).is_integer() and lastUpdate != minutes:
+        if ((minutes / 10).is_integer() or minutes == 5) and lastUpdate != minutes:
             lastUpdate = minutes
+            print("Atualizando...")
             Thread(target=update, args=(client,)).start()
         sleep(20)
 
@@ -22,6 +23,7 @@ def update(client) -> None:
     global news
     utc = getUTC()
     chats: list = client.database.getChatsByHours(utc)
+    print("Chats para envio", chats)
     for chatId in chats:
         urls: list = client.database.getUserUrls(chatId[0])
         for id, url, limit, lastUpdate, tags in urls:

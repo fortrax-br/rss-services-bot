@@ -112,11 +112,11 @@ O horário deve ser baseado no UTC, a hora atual nele é {extra.getUTC()}.")
     minutes: int = int(timer[1])
     hourIsValid: bool = hours >= 0 and hours <= 23
     minutesIsValid: bool = (minutes >= 0 and minutes <= 50) and \
-        (minutes / 10).is_integer()
+        ((minutes / 10).is_integer() or minutes == 5)
     if not (minutesIsValid and hourIsValid):
         await message.reply("Esté horário não é válido!")
         return
-    time: str = extra.addZero(hours)+":"+timer[1]
+    time: str = extra.addZero(hours)+":"+extra.addZero(minutes)
     ok: bool = client.database.addTimer(message.chat.id, time)
     if not ok:
         await message.reply("Esté horário já esta registrado!")
