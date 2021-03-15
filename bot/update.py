@@ -23,7 +23,7 @@ def update(client) -> None:
     global news
     utc = getUTC()
     chats: list = client.database.getChatsByHours(utc)
-    print("Chats para envio", chats)
+    print(utc, chats)
     for chatId in chats:
         urls: list = client.database.getUserUrls(chatId[0])
         for id, url, limit, lastUpdate, tags in urls:
