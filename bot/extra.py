@@ -16,12 +16,13 @@ async def getChatId(client, message, add=False) -> int:
             return -2
         if chatInfo.type in ("private", "bot"):  # Private not is permited
             return -3
-        #elif not chatInfo.permissions:  # Bot not in group/channel
-        #    return -4
-        admins = await client.get_chat_members(
-            chatInfo.id,
-            filter="administrators"
-        )
+        try:
+            admins = await client.get_chat_members(
+                chatInfo.id,
+                filter="administrators"
+            )
+        except Exception:
+            return -4
         for admin in admins:
             if admin.user.id == message.from_user.id:
                 return chatInfo.id
@@ -39,7 +40,7 @@ errors: dict = {
     -1: "Canal/grupo para iniciar a sessão não informado!",
     -2: "Erro ao obter as informações do chat!",
     -3: "Você não pode colocar um chat privado ou um bot!",
-    -4: "Eu não estou nesse canal/grupo!",
+    -4: "Eu não estou nesse canal/grupo ou não sou administrador!",
     -5: "Você não é um administrador do grupo/canal!"
 }
 

@@ -12,10 +12,10 @@ def run(client, *args) -> None:
     lastUpdate: int = None
     while True:
         minutes: int = int(strftime("%M"))
-        if ((minutes / 10).is_integer() or minutes == 5) and lastUpdate != minutes:
+        if (minutes % 5) == 0 and lastUpdate != minutes:
             lastUpdate = minutes
             Thread(target=update, args=(client,)).start()
-        sleep(20)
+        sleep(10)
 
 
 def update(client) -> None:
