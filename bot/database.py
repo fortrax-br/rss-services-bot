@@ -31,6 +31,7 @@ class mysql:
                 raise error
         try:
             result: list = self.cursor.fetchall()
+            self.connection.commit()
         except Exception:
             result: list = []
         return result

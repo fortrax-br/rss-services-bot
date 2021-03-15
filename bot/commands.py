@@ -102,6 +102,7 @@ async def delSession(client, message: Message):
 
 
 async def addTimer(client, message: Message):
+    chatId: int = await extra.getChatId(client, message)
     params: list = message.text.split()
     if len(params) == 1:
         await message.reply(f"Preciso que me informe uma hora para o envio! \
@@ -111,13 +112,12 @@ O horário deve ser baseado no UTC, a hora atual nele é {extra.getUTC()}.")
     hours: int = int(timer[0])
     minutes: int = int(timer[1])
     hourIsValid: bool = hours >= 0 and hours <= 23
-    minutesIsValid: bool = (minutes >= 0 and minutes <= 50) and \
-        ((minutes / 10).is_integer() or minutes == 5)
+    minutesIsValid: bool = (minutes >= 0 and minutes <= 59) and (minutes % 5) == 0
     if not (minutesIsValid and hourIsValid):
         await message.reply("Esté horário não é válido!")
         return
     time: str = extra.addZero(hours)+":"+extra.addZero(minutes)
-    ok: bool = client.database.addTimer(message.chat.id, time)
+    ok: bool = client.database.addTimer(chatId, time)
     if not ok:
         await message.reply("Esté horário já esta registrado!")
         return
