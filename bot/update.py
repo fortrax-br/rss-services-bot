@@ -1,75 +1,63 @@
-import rss
-from extra import getUTC
-from time import sleep, strftime, time
-from threading import Thread
 from bs4 import BeautifulSoup
+from rss import getNews
+from time import sleep, strftime
+from extra import getUTC
+from threading import Thread
 
 
-news: dict = {}
-
-
-def run(client, *args) -> None:
-    lastUpdate: int = None
+def run(app) -> None:
+    lastUpdate: int = int(strftime("%M"))
     while True:
-        minutes: int = int(strftime("%M"))
-        if (minutes % 5) == 0 and lastUpdate != minutes:
-            lastUpdate = minutes
-            Thread(target=update, args=(client,)).start()
         sleep(10)
+        minutes: int = int(strftime("%M"))
+        if not ((minutes % 5) == 0 and lastUpdate != minutes):
+            continue
+        update(app)
+        lastUpdate = minutes
 
 
-def update(client) -> None:
-    global news
-    utc = getUTC()
-    chats: list = client.database.getChatsByHours(utc)
-    for chatId in chats:
-        urls: list = client.database.getUserUrls(chatId[0])
-        for id, url, limit, lastUpdate, tags in urls:
-            if url in news:
-                if (time()-news[url][1]) > 10:
-                    news[url] = [rss.getNews(url), time()]
-            else:
-                news[url] = [rss.getNews(url), time()]
-            Thread(
-                target=sendNews,
-                args=(client, id, chatId[0], limit, lastUpdate, tags, news[url][0],)
-            ).start()
+def update(app) -> None:
+    utc: int = getUTC()
+    chats: list = app.database.getChatsByHours(utc)
+    print(chats)
+    for chat in chats:
+        chatId: int = chat[0]
+        informations: list = app.database.getUserUrls(chatId)
+        Thread(target=sendNews, args=(app, chatId, informations,)).start()
 
 
-def sendNews(client, urlId: int, chatId: int, limit: int,
-             lastUpdate: str, tags: str, news: dict) -> None:
-    count: int = 0
-    if not limit:
-        limit: int = client.database.getLimit(chatId)
-    for new in news["entries"]:
-        if count == limit:
-            break
-        if not lastUpdate:
-            pass
-        elif lastUpdate == new["published"]:
-            break
-        try:
+def sendNews(app, chatId: int, informations: list) -> None:
+    for info in informations:
+        print("URL", info)
+        url = info[1]
+        limit: int = info[2]
+        lastUpdate: str = info[3]
+        tags: str = info[4].strip()
+        if not limit:
+            limit = app.database.getLimit(chatId)
+        count = 1
+        news: dict = getNews(url)
+        for new in news["entries"]:
+            if lastUpdate == new["published"]:
+                break
             description = BeautifulSoup(new["description"], "html.parser").text
-            message: str = f"""**{new['title']}**
-{tags}
-__{new['published']} usando o serviço de noticias {news['feed']['title']}__
-
-```{description}```
-
-🌐[Visitar o site]({new['link']})"""
-            if len(message) > 4096:
+            text: str = f"**{new['title']}**\n"
+            text += f"{tags}\n"
+            text += f"__{new['published']} pelo serviço de noticias {news['feed']['title']}__\n\n"
+            text += f"```{description}```\n\n"
+            text += f"🌐 [Ler mais.]({new['link']})"
+            if len(text) > 4096:
                 continue
-            client.send_message(
+            app.send_message(
                 chat_id=chatId,
-                text=message,
+                text=text,
                 parse_mode="markdown"
             )
-            sleep(1)
             count += 1
-        except Exception:
-            pass
-    client.database.setLastUpdate(
-        chatId=chatId,
-        urlId=urlId,
-        last=news["entries"][0]["published"]
-    )
+            if count == limit:
+                break
+        app.database.setLastUpdate(
+            chatId=chatId,
+            urlId=info[0],
+            last=news["entries"][0]["published"]
+        )

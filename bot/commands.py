@@ -111,7 +111,7 @@ O horário deve ser baseado no UTC, a hora atual nele é {extra.getUTC()}.")
     timer: list = (params[1]+":").split(":")
     hours: int = int(timer[0])
     minutes: int = int(timer[1])
-    hourIsValid: bool = hours >= 0 and hours <= 23
+    hourIsValid: bool = hours >= 0 and hours <= 24
     minutesIsValid: bool = (minutes >= 0 and minutes <= 59) and (minutes % 5) == 0
     if not (minutesIsValid and hourIsValid):
         await message.reply("Esté horário não é válido!")

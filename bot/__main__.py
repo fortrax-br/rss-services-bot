@@ -1,10 +1,8 @@
-from threading import Thread
-from app import App
-from pyrogram import idle
-
 import update
 import commands
-
+from app import App
+from pyrogram import idle
+from threading import Thread
 
 print("Pressione CTRL+\\ quando quiser sair...")
 commands.register(App)
