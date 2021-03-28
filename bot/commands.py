@@ -17,7 +17,11 @@ def register(app) -> None:
 
 async def start(client, message: Message) -> None:
     me = await client.get_me()
-    client.database.createConfig(message.chat.id)
+    try:
+        client.database.addChat(message.chat.id)
+        client.database.createConfig(message.chat.id)
+    except:
+        pass
     await message.reply(
         "Olá, você pode ver os meus comandos enviando /help",
         reply_markup=InlineKeyboardMarkup([
@@ -34,7 +38,7 @@ async def start(client, message: Message) -> None:
 
 
 async def add(client, message: Message):
-    userId = await extra.getChatId(client, message)
+    chatId = await extra.getChatId(client, message)
     limit = findall(r"\(([0-9]+)\)", message.text)
     if limit:
         message.text = message.text.replace(f"({limit[0]})", "")
@@ -56,7 +60,7 @@ async def add(client, message: Message):
     except:
         pass
     client.database.addService(
-        chat_id=userId,
+        chatId=chatId,
         url=url,
         tags=" ".join(params[2:]),
         limit=limit

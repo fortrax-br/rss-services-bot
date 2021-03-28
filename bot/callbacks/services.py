@@ -5,7 +5,7 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 async def removeServiceMenu(client, callback):
     message = callback.message
     chatId = await getChatId(client, message)
-    rssList: list = client.database.getUserUrlsSimple(chatId)
+    rssList: list = client.database.getUserServices(chatId)
     if not rssList:
         await client.edit_message_text(
             message_id=message.message_id,
@@ -66,7 +66,7 @@ async def removeServiceOk(client, callback, urlId: str):
 async def listServices(client, callback):
     msg = callback.message
     userId = await getChatId(client, msg)
-    rssList: list = client.database.getUserUrlsSimple(userId)
+    rssList: list = client.database.getUserServices(userId)
     if not rssList:
         await client.edit_message_text(
             message_id=msg.message_id,
@@ -78,8 +78,8 @@ async def listServices(client, callback):
     text: str = "Os seguintes serviços estão cadastrados no chat:\n\n"
     for service in rssList:
         text += f" - [{service[1]}]({service[2]})\n"
-        text += f"   Limite: {service[3] or 'Padrão'}\n"
-        text += f"   Tags: {service[4]}\n\n"
+        text += f"   Limite: {service[4] or 'Padrão'}\n"
+        text += f"   Tags: {service[3]}\n\n"
     await client.edit_message_text(
         message_id=msg.message_id,
         chat_id=msg.chat.id,

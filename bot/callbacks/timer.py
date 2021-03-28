@@ -9,8 +9,8 @@ async def listTimers(client, callback):
     timers: list = client.database.getTimers(chatId)
     for time in timers:
         buttons.append([InlineKeyboardButton(
-            time[0],
-            callback_data=f"removeTimerConfirm {time[0]}"
+            time[2],
+            callback_data=f"removeTimerConfirm {time[2]}"
         )])
     buttons.append(extra.back("menu"))
     await client.edit_message_text(

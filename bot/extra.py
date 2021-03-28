@@ -28,13 +28,14 @@ async def getChatId(client, message, add=False) -> int:
                 return chatInfo.id
         return -5
     else:
-        _, controlId, started = client.database.getSession(message.chat.id)
-        if controlId != -1 and (time() - started) > 3600:
+        session = client.database.getSession(message.chat.id)
+        if not session:
+            return message.chat.id
+        if (time() - session[2]) > 3600:
             client.database.deleteSession(message.chat.id)
             await message.reply("Sessão anterior fechada!")
-        elif controlId != -1:
-            return controlId
-        return message.chat.id
+            return message.chat.id
+        return session[1]
 
 errors: dict = {
     -1: "Canal/grupo para iniciar a sessão não informado!",

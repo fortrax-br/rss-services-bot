@@ -1,11 +1,11 @@
-from sqlalchemy import (create_engine, MetaData, Table,
+from sqlalchemy import (create_engine, MetaData, Table, text,
                         Column, String, Integer, ForeignKey)
 from time import time
 
 
 class crub:
     def __init__(self, url: str):
-        self.db = create_engine(url)
+        self.db = create_engine(url, echo=False)
         self.conn = self.db.connect()
         self.meta = MetaData()
         self.users = Table(
@@ -18,8 +18,8 @@ class crub:
             "urls",
             self.meta,
             Column("id", Integer, autoincrement=True, primary_key=True),
-            Column("title", String),
-            Column("url", String(2048), unique=True)
+            Column("title", String(1024)),
+            Column("url", String(1024), unique=True)
         )
         self.user_url = Table(
             "user_url",
@@ -27,8 +27,8 @@ class crub:
             Column("id", Integer, autoincrement=True, primary_key=True),
             Column("user_id", ForeignKey("users.id")),
             Column("url_id", ForeignKey("urls.id")),
-            Column("tags", String),
-            Column("lastupdate", String),
+            Column("tags", String(1024)),
+            Column("lastupdate", String(512)),
             Column("max_news", Integer)
         )
         self.timers = Table(
@@ -79,13 +79,11 @@ class crub:
         return -1
 
     def getUserServices(self, chatId: int) -> list:
-        command = self.user_url.select().select_from(
-            self.user_url.join(
-                self.users,
-                self.users.c.chat_id == chatId,
-                self.user_url.c.user_id == self.users.c.id
-            )
-        )
+        command = text(f"SELECT urls.*, user_url.tags, user_url.max_news, lastupdate \
+                        FROM user_url, urls, users \
+                        WHERE user_url.url_id=urls.id \
+                          AND user_url.user_id=users.id \
+                          AND users.chat_id={chatId};")
         result = self.conn.execute(command)
         return result.fetchall()
 

@@ -12,8 +12,11 @@ App: Client = Client(
     api_hash=environ.get("TELEGRAM_API_HASH"),
     bot_token=environ.get("BOT_TOKEN")
 )
-App.config: dict = {
-    "mysql": "sqlite:///rssBot.db"
-}
-App.database = database.mysql(App.config["mysql"])
+
+App.database = database.crub(
+    environ.get(
+        "DATABASE_URL",
+        "sqlite:///rssBot.db"
+    )
+)
 App.add_handler(CallbackQueryHandler(handler))
