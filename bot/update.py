@@ -19,16 +19,14 @@ def run(app) -> None:
 def update(app) -> None:
     utc: int = getUTC()
     chats: list = app.database.getChatsByHours(utc)
-    print(chats)
     for chat in chats:
-        chatId: int = chat[0]
+        chatId: int = chat[1]
         informations: list = app.database.getUserUrls(chatId)
         Thread(target=sendNews, args=(app, chatId, informations,)).start()
 
 
 def sendNews(app, chatId: int, informations: list) -> None:
     for info in informations:
-        print("URL", info)
         url = info[1]
         limit: int = info[2]
         lastUpdate: str = info[3]

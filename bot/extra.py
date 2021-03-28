@@ -28,12 +28,12 @@ async def getChatId(client, message, add=False) -> int:
                 return chatInfo.id
         return -5
     else:
-        session, started = client.database.getSession(message.chat.id)
-        if session != -1 and (time() - started) > 3600:
+        _, controlId, started = client.database.getSession(message.chat.id)
+        if controlId != -1 and (time() - started) > 3600:
             client.database.deleteSession(message.chat.id)
             await message.reply("Sessão anterior fechada!")
-        elif session != -1:
-            return session
+        elif controlId != -1:
+            return controlId
         return message.chat.id
 
 errors: dict = {

@@ -13,12 +13,7 @@ App: Client = Client(
     bot_token=environ.get("BOT_TOKEN")
 )
 App.config: dict = {
-    "mysql": {
-        "user": environ.get("MYSQL_USER"),
-        "password": environ.get("MYSQL_PASSWORD"),
-        "host": environ.get("MYSQL_HOST", "localhost"),
-        "port": int(environ.get("MYSQL_PORT", "3306"))
-    }
+    "mysql": "sqlite:///rssBot.db"
 }
-App.database = database.mysql(**App.config["mysql"])
+App.database = database.mysql(App.config["mysql"])
 App.add_handler(CallbackQueryHandler(handler))

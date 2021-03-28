@@ -17,6 +17,7 @@ def register(app) -> None:
 
 async def start(client, message: Message) -> None:
     me = await client.get_me()
+    client.database.createConfig(message.chat.id)
     await message.reply(
         "Olá, você pode ver os meus comandos enviando /help",
         reply_markup=InlineKeyboardMarkup([
@@ -49,14 +50,17 @@ async def add(client, message: Message):
     if "title" not in rssService["feed"]:
         await message.reply("Este não é um serviço RSS válido!")
         return
+    title: str = rssService["feed"]["title"]
+    try:
+        client.database.addUrl(title, url)
+    except:
+        pass
     client.database.addService(
         chat_id=userId,
-        title=rssService["feed"]["title"],
         url=url,
-        tags=[tag.strip() for tag in params[2:]],
+        tags=" ".join(params[2:]),
         limit=limit
     )
-    title: str = rssService["feed"]["title"]
     await message.reply(
         f"Ok, O serviço de noticias {title} foi adicionado."
     )
@@ -64,10 +68,9 @@ async def add(client, message: Message):
 
 async def limit(client, message: Message):
     chatId = await extra.getChatId(client, message)
-    print(chatId)
     params: list = message.text.split()
     if len(params) == 1:
-        limit = client.database.getLimit(chatId)
+        limit = client.database.getDefaultLimit(chatId)
         await message.reply(f"O limite atual é: {limit}.")
         return
     try:
@@ -80,7 +83,7 @@ async def limit(client, message: Message):
             "Só posso mandar algo se o número for maior que 0(zero)!"
         )
         return
-    client.database.setLimit(chatId, limit)
+    client.database.setDefaultLimit(chatId, limit)
     await message.reply("Limite atualizado.")
 
 
@@ -108,7 +111,7 @@ async def addTimer(client, message: Message):
         await message.reply(f"Preciso que me informe uma hora para o envio! \
 O horário deve ser baseado no UTC, a hora atual nele é {extra.getUTC()}.")
         return
-    timer: list = (params[1]+":").split(":")
+    timer: list = (params[1]+":0").split(":")
     hours: int = int(timer[0])
     minutes: int = int(timer[1])
     hourIsValid: bool = hours >= 0 and hours <= 24
