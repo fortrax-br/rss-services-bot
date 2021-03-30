@@ -2,5 +2,5 @@ https://github.com/pyrogram/pyrogram/archive/v1.1.0.zip
 tgcrypto==1.2.2
 feedparser==5.2.1
 bs4==0.0.1
-mysql-connector-python==8.0.23
 sqlalchemy==1.4.2
+pg8000==1.19.0
