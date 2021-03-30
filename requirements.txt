@@ -3,4 +3,4 @@ tgcrypto==1.2.2
 feedparser==5.2.1
 bs4==0.0.1
 sqlalchemy==1.4.2
-pg8000==1.19.0
+psycopg2-binary==2.8.6
