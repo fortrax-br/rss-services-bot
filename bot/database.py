@@ -1,5 +1,6 @@
 from sqlalchemy import (create_engine, MetaData, Table, text,
-                        Column, String, Integer, ForeignKey)
+                        Column, String, Integer, BigInteger,
+                        ForeignKey)
 from time import time
 
 
@@ -12,7 +13,7 @@ class crub:
             "users",
             self.meta,
             Column("id", Integer, autoincrement=True, primary_key=True),
-            Column("chat_id", Integer, unique=True)
+            Column("chat_id", BigInteger, unique=True)
         )
         self.urls = Table(
             "urls",
@@ -35,22 +36,22 @@ class crub:
             "timers",
             self.meta,
             Column("id", Integer, autoincrement=True, primary_key=True),
-            Column("chat_id", Integer),
+            Column("chat_id", BigInteger()),
             Column("timer", String(5))
         )
         self.config = Table(
             "config",
             self.meta,
             Column("id", Integer, autoincrement=True, primary_key=True),
-            Column("chat_id", Integer, unique=True),
+            Column("chat_id", BigInteger, unique=True),
             Column("max_news", Integer, server_default="5")
         )
         self.sessions = Table(
             "sessions",
             self.meta,
-            Column("chat_id", Integer, unique=True),
-            Column("control_id", Integer),
-            Column("started", Integer)
+            Column("chat_id", BigInteger, unique=True),
+            Column("control_id", BigInteger),
+            Column("started", BigInteger)
         )
         self.meta.create_all(self.db)
 
