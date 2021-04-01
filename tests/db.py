@@ -1,11 +1,11 @@
 import sys
 sys.path.extend(["bot"])
 import unittest
-import database_new
+import database
 
 
 class Tests(unittest.TestCase):
-    db = database_new.crub("sqlite:///test.db")
+    db = database.crub("sqlite:///test.db")
 
     def test_01_addChat(self):
         r = self.db.addChat(123456)
