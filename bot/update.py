@@ -23,25 +23,25 @@ def update(app) -> None:
     chats: list = app.database.getChatsByHours(utc)
     for chat in chats:
         chatId: int = chat[1]
-        informations: list = app.database.getUserServices(chatId)
-        Thread(target=sendNews, args=(app, chatId, informations,)).start()
+        services: list = app.database.getUserServices(chatId)
+        Thread(target=sendNews, args=(app, chatId, services,)).start()
 
 
-def sendNews(app, chatId: int, informations: list) -> None:
-    for info in informations:
-        title = info[1]
-        url = info[2]
-        tags = info[3]
-        limit: int = info[4]
-        lastUpdate: str = info[5]
+def sendNews(app, chatId: int, services: list) -> None:
+    for service in services:
+        title: str = service[1]
+        url: str = service[2]
+        tags: str = service[3]
+        limit: int = service[4]
+        lastUpdate: str = service[5]
         if not limit:
-            limit = app.database.getDefaultLimit(chatId)
-        count = 1
+            limit: int = app.database.getDefaultLimit(chatId)
+        count: int = 0
         news: dict = getNews(url)
         for new in news["entries"]:
             if lastUpdate == new["published"]:
                 break
-            description = BeautifulSoup(new["description"], "html.parser").text
+            description: str = BeautifulSoup(new["description"], "html.parser").text
             text: str = f"**{new['title']}**\n"
             text += f"{tags}\n"
             text += f"__{new['published']} pelo serviço de noticias {news['feed']['title']}__\n\n"
@@ -59,6 +59,6 @@ def sendNews(app, chatId: int, informations: list) -> None:
                 break
         app.database.setLastUpdate(
             chatId=chatId,
-            urlId=info[0],
+            urlId=service[0],
             lastUpdate=news["entries"][0]["published"]
         )

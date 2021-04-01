@@ -54,14 +54,22 @@ async def add(client, message: Message):
     if "title" not in rssService["feed"]:
         await message.reply("Este não é um serviço RSS válido!")
         return
+    realUrl: str = rssService["href"]
     title: str = rssService["feed"]["title"]
     try:
-        client.database.addUrl(title, url)
+        client.database.addUrl(title, realUrl)
     except:
         pass
+    exists = [True
+            for service in client.database.getUserServices(chatId)
+              if service[2] == realUrl
+        ]
+    if exists:
+        await message.reply("O serviço informado já existe!")
+        return
     client.database.addService(
         chatId=chatId,
-        url=url,
+        url=realUrl,
         tags=" ".join(params[2:]),
         limit=limit
     )
@@ -124,8 +132,9 @@ O horário deve ser baseado no UTC, a hora atual nele é {extra.getUTC()}.")
         await message.reply("Esté horário não é válido!")
         return
     time: str = extra.addZero(hours)+":"+extra.addZero(minutes)
-    ok: bool = client.database.addTimer(chatId, time)
-    if not ok:
+    exists = [True for t in client.database.getTimers(chatId) if t[2] == time]
+    if exists:
         await message.reply("Esté horário já esta registrado!")
         return
+    client.database.addTimer(chatId, time)
     await message.reply("Ok, horário registrado.")
