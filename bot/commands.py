@@ -20,7 +20,7 @@ async def start(client, message: Message) -> None:
     try:
         client.database.addChat(message.chat.id)
         client.database.createConfig(message.chat.id)
-    except:
+    except Exception as error:
         pass
     await message.reply(
         "Olá, você pode ver os meus comandos enviando /help",
@@ -104,11 +104,17 @@ async def session(client, message: Message):
     if chatId in extra.errors:
         await message.reply(extra.errors[chatId])
         return
-    ok: bool = client.database.createSession(message.chat.id, chatId)
-    if ok:
-        await message.reply("Ok, sessão iniciada.")
-    else:
-        await message.reply("Você já tem uma sessão ativa, para ele primeiro.")
+    try:
+        client.database.addChat(chatId)
+        client.database.createConfig(chatId)
+    except:
+        pass
+    try:
+        client.database.createSession(message.chat.id, chatId)
+    except:
+        await message.reply("Você já está em uma sessão, pare ela primeiro!")
+        return
+    await message.reply("Ok, sessão iniciada.")
 
 
 async def delSession(client, message: Message):
