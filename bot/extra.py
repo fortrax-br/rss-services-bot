@@ -2,14 +2,23 @@ from time import time, strftime
 from pyrogram.types import InlineKeyboardButton
 
 
+chatIdErrors: dict = {
+    -1: "Canal/grupo para iniciar a sessão não informado!",
+    -2: "Erro ao obter as informações do chat!",
+    -3: "Você não pode colocar um chat privado ou um bot!",
+    -4: "Eu não estou nesse canal/grupo ou não sou administrador!",
+    -5: "Você não é um administrador do grupo/canal!"
+}
+
+
 async def getChatId(client, message, add=False) -> int:
-    params: list = message.text.split(" ")
-    if add is True and len(params) == 1:
+    parameters: list = message.text.split(" ")
+    if add is True and len(parameters) == 1:
         return -1
-    elif add and len(params) >= 2:
-        user: str = params[-1].strip()
+    elif add and len(parameters) >= 2:
+        user: str = parameters[-1].strip()
         if "t.me" in user:
-            user = user.split("/")[-1]
+            user: str = user.split("/")[-1]
         try:
             chatInfo = await client.get_chat(user)
         except Exception:
@@ -36,14 +45,6 @@ async def getChatId(client, message, add=False) -> int:
             await message.reply("Sessão anterior fechada!")
             return message.chat.id
         return session[1]
-
-errors: dict = {
-    -1: "Canal/grupo para iniciar a sessão não informado!",
-    -2: "Erro ao obter as informações do chat!",
-    -3: "Você não pode colocar um chat privado ou um bot!",
-    -4: "Eu não estou nesse canal/grupo ou não sou administrador!",
-    -5: "Você não é um administrador do grupo/canal!"
-}
 
 
 def getUTC() -> str:

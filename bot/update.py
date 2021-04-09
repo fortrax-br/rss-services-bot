@@ -9,18 +9,17 @@ def run(app) -> None:
     print("Bot iniciado")
     lastUpdate: int = int(strftime("%M"))
     while True:
-        sleep(10)
+        sleep(30)
         minutes: int = int(strftime("%M"))
         if not ((minutes % 5) == 0 and lastUpdate != minutes):
             continue
-        print("Atualizando...")
         update(app)
         lastUpdate = minutes
 
 
 def update(app) -> None:
-    utc: int = getUTC()
-    chats: list = app.database.getChatsByHours(utc)
+    hour: str = getUTC()
+    chats: list = app.database.getChatsByHours(hour)
     for chat in chats:
         chatId: int = chat[1]
         services: list = app.database.getUserServices(chatId)
@@ -28,8 +27,9 @@ def update(app) -> None:
 
 
 def sendNews(app, chatId: int, services: list) -> None:
+    style: tuple = app.database.getStyle(chatId)
     for service in services:
-        title: str = service[1]
+        serviceTitle: str = service[1]
         url: str = service[2]
         tags: str = service[3]
         limit: int = service[4]
@@ -41,11 +41,15 @@ def sendNews(app, chatId: int, services: list) -> None:
         for new in news["entries"]:
             if lastUpdate == new["published"]:
                 break
-            description: str = BeautifulSoup(new["description"], "html.parser").text
-            text: str = f"**{new['title']}**\n"
-            text += f"{tags}\n"
-            text += f"__{new['published']} pelo serviço de noticias {news['feed']['title']}__\n\n"
-            text += f"```{description}```\n\n"
+            description: str = BeautifulSoup(
+                new["description"],
+                "html.parser"
+            ).text
+            text: str = style[1]+new['title']+style[1]+"\n"
+            if tags:
+                text += f"{tags}\n"
+            text += style[2]+serviceTitle+"» "+new["published"]+style[2]+"\n\n"
+            text += style[3]+description+style[3]+"\n\n"
             text += f"🌐 [Ler mais!]({new['link']})"
             if len(text) > 4096:
                 continue
@@ -57,6 +61,7 @@ def sendNews(app, chatId: int, services: list) -> None:
             count += 1
             if count == limit:
                 break
+            sleep(1)
         app.database.setLastUpdate(
             chatId=chatId,
             urlId=service[0],
