@@ -1,18 +1,18 @@
 import extra
 import rss
 from re import findall
-from pyrogram import filters
+from pyrogram.filters import command
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 from pyrogram.handlers import MessageHandler
 
 
-def register(app) -> None:
-    app.add_handler(MessageHandler(start, filters.command("start")))
-    app.add_handler(MessageHandler(add, filters.command("add")))
-    app.add_handler(MessageHandler(limit, filters.command("limit")))
-    app.add_handler(MessageHandler(session, filters.command("session")))
-    app.add_handler(MessageHandler(delSession, filters.command("delsession")))
-    app.add_handler(MessageHandler(addTimer, filters.command("addtime")))
+def registerCommands(app) -> None:
+    app.add_handler(MessageHandler(start, command("start")))
+    app.add_handler(MessageHandler(add, command("add")))
+    app.add_handler(MessageHandler(limit, command("limit")))
+    app.add_handler(MessageHandler(session, command("session")))
+    app.add_handler(MessageHandler(delSession, command("delsession")))
+    app.add_handler(MessageHandler(addTimer, command("addtime")))
 
 
 async def start(client, message: Message) -> None:
@@ -20,10 +20,10 @@ async def start(client, message: Message) -> None:
     try:
         client.database.addChat(message.chat.id)
         client.database.createConfig(message.chat.id)
-    except Exception as error:
+    except Exception:
         pass
     await message.reply(
-        "Olá, você pode ver os meus comandos enviando /help",
+        "Olá, você pode ver os meus comandos pelo painel de controle, a maior parte a interação com o bot vai ser usando ele.",
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton(
                 "Adicionar em um canal/grupo",
@@ -39,18 +39,18 @@ async def start(client, message: Message) -> None:
 
 async def add(client, message: Message):
     chatId = await extra.getChatId(client, message)
-    limit = findall(r"\(([0-9]+)\)", message.text)
-    if limit:
-        message.text = message.text.replace(f"({limit[0]})", "")
-        limit = int(limit[0])
+    limitExists: list = findall(r"\(([0-9]+)\)", message.text)
+    if limitExists:
+        message.text = message.text.replace(f"({limitExists[0]})", "")
+        limit: int = int(limitExists[0])
     else:
-        limit = None
-    params: list = message.text.split()
-    if len(params) == 1:
+        limit: int = 0
+    parameters: list = message.text.split()
+    if len(parameters) == 1:
         await message.reply("Informe o link do serviço!")
         return
-    url: str = params[1].strip()
-    rssService: dict = rss.getNews(url)
+    informedUrl: str = parameters[1].strip()
+    rssService: dict = rss.getNews(informedUrl)
     if "title" not in rssService["feed"]:
         await message.reply("Este não é um serviço RSS válido!")
         return
@@ -58,19 +58,20 @@ async def add(client, message: Message):
     title: str = rssService["feed"]["title"]
     try:
         client.database.addUrl(title, realUrl)
-    except:
+    except Exception:
         pass
-    exists = [True
-            for service in client.database.getUserServices(chatId)
-              if service[2] == realUrl
-        ]
-    if exists:
+    serviceExists = [
+        True
+        for service in client.database.getUserServices(chatId)
+        if service[2] == realUrl
+    ]
+    if serviceExists:
         await message.reply("O serviço informado já existe!")
         return
     client.database.addService(
         chatId=chatId,
         url=realUrl,
-        tags=" ".join(params[2:]),
+        tags=" ".join(parameters[2:]),
         limit=limit
     )
     await message.reply(
@@ -80,13 +81,13 @@ async def add(client, message: Message):
 
 async def limit(client, message: Message):
     chatId = await extra.getChatId(client, message)
-    params: list = message.text.split()
-    if len(params) == 1:
-        limit = client.database.getDefaultLimit(chatId)
+    parameters: list = message.text.split()
+    if len(parameters) == 1:
+        limit: int = client.database.getDefaultLimit(chatId)
         await message.reply(f"O limite atual é: {limit}.")
         return
     try:
-        limit = int(params[1])
+        limit: int = int(parameters[1])
     except ValueError:
         await message.reply("Eu preciso de um número!")
         return
@@ -101,17 +102,17 @@ async def limit(client, message: Message):
 
 async def session(client, message: Message):
     chatId: int = await extra.getChatId(client, message, True)
-    if chatId in extra.errors:
-        await message.reply(extra.errors[chatId])
+    if chatId in extra.chatIdErrors:
+        await message.reply(extra.chatIdErrors[chatId])
         return
     try:
         client.database.addChat(chatId)
         client.database.createConfig(chatId)
-    except:
+    except Exception:
         pass
     try:
         client.database.createSession(message.chat.id, chatId)
-    except:
+    except Exception:
         await message.reply("Você já está em uma sessão, pare ela primeiro!")
         return
     await message.reply("Ok, sessão iniciada.")
@@ -124,23 +125,26 @@ async def delSession(client, message: Message):
 
 async def addTimer(client, message: Message):
     chatId: int = await extra.getChatId(client, message)
-    params: list = message.text.split()
-    if len(params) == 1:
+    parameters: list = message.text.split()
+    if len(parameters) == 1:
         await message.reply(f"Preciso que me informe uma hora para o envio! \
 O horário deve ser baseado no UTC, a hora atual nele é {extra.getUTC()}.")
         return
-    timer: list = (params[1]+":0").split(":")
-    hours: int = int(timer[0])
-    minutes: int = int(timer[1])
+    # Se o usuário mandar apenas um número o bot vai completar e colocar
+    # um 0 no fim para enviar na hora pedida
+    # Ex: 12 -> 12:00
+    timerList: list = (parameters[1]+":0").split(":")
+    hours: int = int(timerList[0])
+    minutes: int = int(timerList[1])
     hourIsValid: bool = hours >= 0 and hours <= 24
-    minutesIsValid: bool = (minutes >= 0 and minutes <= 59) and (minutes % 5) == 0
+    minutesIsValid: bool = (minutes >= 0 and minutes <= 55) and (minutes % 5) == 0
     if not (minutesIsValid and hourIsValid):
         await message.reply("Esté horário não é válido!")
         return
-    time: str = extra.addZero(hours)+":"+extra.addZero(minutes)
-    exists = [True for t in client.database.getTimers(chatId) if t[2] == time]
+    timer: str = extra.addZero(hours)+":"+extra.addZero(minutes)
+    exists = [True for t in client.database.getTimers(chatId) if t[2] == timer]
     if exists:
         await message.reply("Esté horário já esta registrado!")
         return
-    client.database.addTimer(chatId, time)
-    await message.reply("Ok, horário registrado.")
+    client.database.addTimer(chatId, timer)
+    await message.reply(f"Ok, horário {timer} registrado.")

@@ -53,6 +53,14 @@ class crub:
             Column("control_id", BigInteger),
             Column("started", BigInteger)
         )
+        self.styles = Table(
+            "styles",
+            self.meta,
+            Column("chat_id", BigInteger, unique=True),
+            Column("title", String(5), server_default="**"),
+            Column("hour_and_services", String(5), server_default="__"),
+            Column("description", String(5), server_default="```")
+        )
         self.meta.create_all(self.db)
 
     def getUserId(self, chatId: int) -> int:
@@ -196,3 +204,20 @@ class crub:
     def deleteTimer(self, chatId: int, timer: str) -> None:
         command = self.timers.delete().where(self.timers.c.timer == timer)
         self.conn.execute(command)
+
+    def createDefaultStyle(self, chatId: int) -> None:
+        command = self.styles.insert().values(chat_id=chatId)
+        self.conn.execute(command)
+
+    def setStyle(self, chatId: int, **kwargs) -> None:
+        command = self.styles.update().values(**kwargs).where(
+            self.styles.c.chat_id == chatId
+        )
+        self.conn.execute(command)
+
+    def getStyle(self, chatId: int) -> tuple:
+        command = self.styles.select().where(
+            self.styles.c.chat_id == chatId
+        )
+        result = self.conn.execute(command).fetchone()
+        return result

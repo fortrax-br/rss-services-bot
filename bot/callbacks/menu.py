@@ -9,8 +9,16 @@ async def menu(client, callback):
         text="Escolha o que deseja ver/fazer:",
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton(
-                "📠 Todos os comandos",
-                callback_data="help"
+                "🖋 Mudar o estilo das noticias",
+                callback_data="stylesMenu"
+            )],
+            [InlineKeyboardButton(
+                "🗑 Remover algum serviço",
+                callback_data="removeServiceMenu"
+            )],
+            [InlineKeyboardButton(
+                "⏲ Remover um horário de envio",
+                callback_data="timers"
             )],
             [InlineKeyboardButton(
                 "🛠 Suas configurações",
@@ -21,12 +29,8 @@ async def menu(client, callback):
                 callback_data="services"
             )],
             [InlineKeyboardButton(
-                "🗑 Remover algum serviço",
-                callback_data="removeServiceMenu"
-            )],
-            [InlineKeyboardButton(
-                "⏲ Remover um horário de envio",
-                callback_data="timers"
+                "📠 Todos os comandos",
+                callback_data="help"
             )]
         ])
     )

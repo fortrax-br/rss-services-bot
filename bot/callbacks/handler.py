@@ -1,4 +1,4 @@
-from callbacks import config, services, timer, cancel, menu, bothelp
+from callbacks import config, services, timer, cancel, menu, bothelp, styles
 
 
 async def handler(client, callback):
@@ -25,6 +25,12 @@ async def handler(client, callback):
         await timer.confirm(client, callback, data[0])
     elif command == "removeTimerOk":
         await timer.ok(client, callback, data[0])
+    elif command == "stylesMenu":
+        await styles.menu(client, callback)
+    elif command == "selectStyle":
+        await styles.select(client, callback, data[0])
+    elif command == "setStyle":
+        await styles.setStyle(client, callback, data[0], int(data[1]))
     elif command == "cancel":
         await cancel.cancel(client, callback)
     elif command == "help":

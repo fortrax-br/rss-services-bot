@@ -2,5 +2,5 @@ from feedparser import parse
 
 
 def getNews(url: str) -> dict:
-    feed = parse(url)
+    feed: dict = parse(url)
     return feed
