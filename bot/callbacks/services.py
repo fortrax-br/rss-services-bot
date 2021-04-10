@@ -4,7 +4,7 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 async def removeServiceMenu(client, callback):
     message = callback.message
-    chatId = await getChatId(client, message)
+    chatId: int = await getChatId(client, message)
     rssList: list = client.database.getUserServices(chatId)
     if not rssList:
         await client.edit_message_text(
