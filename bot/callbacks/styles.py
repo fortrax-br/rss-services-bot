@@ -2,12 +2,12 @@ from extra import back, getChatId
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
-names = {
+names: dict = {
     "description": "Descrição",
     "hour_and_services": "Hora e serviço",
     "title": "Título"
 }
-styles = [
+styles: list = [
     {"name": "Italico", "value": "__"},
     {"name": "Mono Espaçado", "value": "```"},
     {"name": "Negrito", "value": "**"},
@@ -21,7 +21,7 @@ async def menu(client, callback):
         client.database.createDefaultStyle(chatId)
     except Exception:
         pass
-    style = client.database.getStyle(chatId)
+    style: tuple = client.database.getStyle(chatId)
     text = f"""Escolha qual estilo você deseja alterar:
 
 {style[1]}What is Lorem Ipsum?{style[1]}
@@ -46,9 +46,9 @@ async def menu(client, callback):
 
 
 async def select(client, callback, location):
-    buttons = []
+    buttons: list = []
     for style in styles:
-        index = str(styles.index(style))
+        index: int = styles.index(style)
         buttons += [[InlineKeyboardButton(
             style["name"],
             callback_data=f"setStyle {location} {index}"

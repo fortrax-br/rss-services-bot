@@ -23,7 +23,7 @@ async def start(client, message: Message) -> None:
     except Exception:
         pass
     await message.reply(
-        "Olá, você pode ver os meus comandos pelo painel de controle, a maior parte a interação com o bot vai ser usando ele.",
+        "Olá, clique no botão do painel de controle e veja o que eu faço ;)",
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton(
                 "Adicionar em um canal/grupo",
@@ -80,7 +80,7 @@ async def add(client, message: Message):
 
 
 async def limit(client, message: Message):
-    chatId = await extra.getChatId(client, message)
+    chatId: int = await extra.getChatId(client, message)
     parameters: list = message.text.split()
     if len(parameters) == 1:
         limit: int = client.database.getDefaultLimit(chatId)
@@ -137,12 +137,14 @@ O horário deve ser baseado no UTC, a hora atual nele é {extra.getUTC()}.")
     hours: int = int(timerList[0])
     minutes: int = int(timerList[1])
     hourIsValid: bool = hours >= 0 and hours <= 24
-    minutesIsValid: bool = (minutes >= 0 and minutes <= 55) and (minutes % 5) == 0
+    minutesIsValid: bool = ((minutes >= 0 and minutes <= 55)
+                            and (minutes % 5) == 0)
     if not (minutesIsValid and hourIsValid):
         await message.reply("Esté horário não é válido!")
         return
     timer: str = extra.addZero(hours)+":"+extra.addZero(minutes)
-    exists = [True for t in client.database.getTimers(chatId) if t[2] == timer]
+    existentTimers: tuple = client.database.getTimers(chatId)
+    exists = list(filter(lambda item: item[2] == timer, existentTimers))
     if exists:
         await message.reply("Esté horário já esta registrado!")
         return

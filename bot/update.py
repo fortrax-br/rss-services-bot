@@ -13,6 +13,7 @@ def run(app) -> None:
         minutes: int = int(strftime("%M"))
         if not ((minutes % 5) == 0 and lastUpdate != minutes):
             continue
+        print("atulizando...")
         update(app)
         lastUpdate = minutes
 
@@ -39,9 +40,14 @@ def sendNews(app, chatId: int, services: list) -> None:
         count: int = 0
         news: dict = getNews(url)
         for new in news["entries"]:
-            if "published" not in new:
+            if "published" not in new and "updated" not in new:
+                news["entries"].remove(new)
                 continue
-            elif lastUpdate == new["published"]:
+            try:
+                published: str = new["published"]
+            except Exception:
+                published: str = new["updated"]
+            if lastUpdate == published:
                 break
             description: str = BeautifulSoup(
                 new["description"],
@@ -50,7 +56,7 @@ def sendNews(app, chatId: int, services: list) -> None:
             text: str = style[1]+new['title']+style[1]+"\n"
             if tags:
                 text += f"{tags}\n"
-            text += style[2]+serviceTitle+"» "+new["published"]+style[2]+"\n\n"
+            text += style[2]+serviceTitle+"» "+published+style[2]+"\n\n"
             text += style[3]+description+style[3]+"\n\n"
             text += f"🌐 [Ler mais!]({new['link']})"
             if len(text) > 4096:
@@ -64,8 +70,13 @@ def sendNews(app, chatId: int, services: list) -> None:
             if count == limit:
                 break
             sleep(1)
-        app.database.setLastUpdate(
-            chatId=chatId,
-            urlId=service[0],
-            lastUpdate=news["entries"][0]["published"]
-        )
+        if len(news["entries"]) > 0:
+            try:
+                published: str = news["entries"][0]["published"]
+            except Exception:
+                published: str = news["entries"][0]["updated"]
+            app.database.setLastUpdate(
+                chatId=chatId,
+                urlId=service[0],
+                lastUpdate=published
+            )
