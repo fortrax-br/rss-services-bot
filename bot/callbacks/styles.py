@@ -26,7 +26,7 @@ async def menu(client, callback):
 
 {style[1]}What is Lorem Ipsum?{style[1]}
 #lorem #ipsum
-{style[2]}Qua, 31 Mar 2021 04:00:00 -0300 pelo serviço de noticias Lorem Ipsum{style[2]}
+{style[2]}Lorem Ipsum» Qua, 31 Mar 2021 04:00:00 -0300{style[2]}
 
 {style[3]}Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.{style[3]}
 """
