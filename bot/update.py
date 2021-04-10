@@ -39,7 +39,9 @@ def sendNews(app, chatId: int, services: list) -> None:
         count: int = 0
         news: dict = getNews(url)
         for new in news["entries"]:
-            if lastUpdate == new["published"]:
+            if "published" not in new:
+                continue
+            elif lastUpdate == new["published"]:
                 break
             description: str = BeautifulSoup(
                 new["description"],
