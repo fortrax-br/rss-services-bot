@@ -1,20 +1,22 @@
 from pyrogram.types import InlineKeyboardMarkup
-from extra import back
+from ..extra import back
+from pyrogram import Client
+from pyrogram.types import CallbackQuery
 
 
-async def botHelp(client, callback):
+async def botHelp(client: Client, callback: CallbackQuery):
     msg = callback.message
     await client.edit_message_text(
         message_id=msg.message_id,
         chat_id=msg.chat.id,
         text="""Eu tenho os seguintes comandos:
 
-Obs: Tudo entre os `<>` é opcional.
+Obs: Tudo entre os `[]` é opcional.
 
-`/add <(N)> url <tags>`
+`/add [(N)] url <tags>`
   - N é a quantidade de noticias para ser enviada, url deve ser o link direto do serviço e tags são as que devem aparecer junto com as noticias;
 
-`/limit <N>`
+`/limit [N]`
   - N é a quantidade padrão de noticias por serviço, se o comando for executado sem esse argumento ele devolve o limite atual;
 
 `/session @username`

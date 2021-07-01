@@ -1,12 +1,14 @@
-from extra import back, getChatId
+from ..extra import back, getChatId
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram import Client
+from pyrogram.types import CallbackQuery
 
 
-async def removeServiceMenu(client, callback):
+async def removeServiceMenu(client: Client, callback: CallbackQuery):
     message = callback.message
-    chatId: int = await getChatId(client, message)
-    rssList: list = client.database.getUserServices(chatId)
-    if not rssList:
+    chatId = await getChatId(client, message)
+    services = client.database.getServices(chatId)
+    if not services:
         await client.edit_message_text(
             message_id=message.message_id,
             chat_id=message.chat.id,
@@ -15,11 +17,11 @@ async def removeServiceMenu(client, callback):
         )
         return
     buttons: list = []
-    for rssService in rssList:
+    for service in services:
         buttons.append([
             InlineKeyboardButton(
-                rssService[1],
-                callback_data=f"removeServiceConfirm {rssService[0]}"
+                text=service.title,
+                callback_data=f"removeServiceConfirm {service.url_id}"
             )
         ])
     buttons.append(back("menu"))
@@ -66,8 +68,8 @@ async def removeServiceOk(client, callback, urlId: str):
 async def listServices(client, callback):
     msg = callback.message
     userId = await getChatId(client, msg)
-    rssList: list = client.database.getUserServices(userId)
-    if not rssList:
+    services = client.database.getServices(userId)
+    if not services:
         await client.edit_message_text(
             message_id=msg.message_id,
             chat_id=msg.chat.id,
@@ -76,10 +78,10 @@ async def listServices(client, callback):
         )
         return
     text: str = "Os seguintes serviços estão cadastrados no chat:\n\n"
-    for service in rssList:
-        text += f" - [{service[1]}]({service[2]})\n"
-        text += f"   Limite: {service[4] or 'Padrão'}\n"
-        text += f"   Tags: {service[3]}\n\n"
+    for service in services:
+        text += f" - [{service.title}]({service.url})\n"
+        text += f"   Limite: {service.max_news or 'Padrão'}\n"
+        text += f"   Tags: {service.tags}\n\n"
     await client.edit_message_text(
         message_id=msg.message_id,
         chat_id=msg.chat.id,

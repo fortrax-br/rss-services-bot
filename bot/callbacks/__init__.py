@@ -1,10 +1,11 @@
-from callbacks import config, services, timer, cancel, menu, bothelp, styles
+from . import config, services, timer, cancel, menu, bothelp, styles
+from pyrogram import Client
+from pyrogram.types import CallbackQuery
 
 
-async def handler(client, callback):
-    data: list = callback.data.split()
-    command: str = data[0].strip()
-    data.pop(0)
+async def handler(client: Client, callback: CallbackQuery):
+    data = callback.data.split()
+    command = data.pop(0).strip()
     if command == "menu":
         await menu.menu(client, callback)
     elif command == "removeServiceMenu":

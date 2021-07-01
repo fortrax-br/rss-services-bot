@@ -1,22 +1,24 @@
-from extra import back, getChatId
+from ..extra import back, getChatId
 from pyrogram.types import InlineKeyboardMarkup
+from pyrogram import Client
+from pyrogram.types import CallbackQuery
 
 
-async def config(client, callback):
+async def config(client: Client, callback: CallbackQuery):
     msg = callback.message
     chatId: int = await getChatId(client, msg)
     if chatId != msg.chat.id:
-        session: str = "Sim"
+        isSession = "Sim"
     else:
-        session: str = "Não"
-    config: tuple = client.database.getConfig(chatId)
-    timers: tuple = client.database.getTimers(chatId)
-    text: str = f"""Você está em uma sessão? {session}
-O limite padrão de novas noticias é {config[2]}\n\n"""
+        isSession = "Não"
+    config = client.database.getConfig(chatId)
+    timers = client.database.getTimers(chatId)
+    text = f"""Você está em uma sessão? {isSession}
+O limite padrão de novas noticias é {config.max_news}\n\n"""
     if timers:
         text += "Os horários de envio são:\n\n"
         for time in timers:
-            text += f" - {time[2]}\n"
+            text += f" - {time.timer}\n"
     else:
         text += "Você ainda não registrou o horário de envio de suas noticias!"
     await client.edit_message_text(

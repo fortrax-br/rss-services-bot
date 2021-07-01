@@ -1,70 +1,65 @@
-from time import time, strftime
-from pyrogram.types import InlineKeyboardButton
+from datetime import datetime, timezone
+from time import time
+from pyrogram import Client
+from pyrogram.types import InlineKeyboardButton, Message
+from typing import List, Union
+from .database.types import Error
 
 
-chatIdErrors: dict = {
-    -1: "Canal/grupo para iniciar a sessão não informado!",
-    -2: "Erro ao obter as informações do chat!",
-    -3: "Você não pode colocar um chat privado ou um bot!",
-    -4: "Eu não estou nesse canal/grupo ou não sou administrador!",
-    -5: "Você não é um administrador do grupo/canal!"
-}
+async def getChatId(client: Client, message: Message) -> int:
+    session = client.database.getSession(message.chat.id)
+    if isinstance(session, Error):
+        return message.chat.id
+    if (time() - session.started) >= 3600:
+        client.database.deleteSession(message.chat.id)
+        await message.reply("Sessão anterior fechada!")
+        return message.chat.id
+    return session.control_id
 
 
-async def getChatId(client, message, add: bool = False) -> int:
-    parameters: list = message.text.split(" ")
-    if add is True and len(parameters) == 1:
-        return -1
-    elif add and len(parameters) >= 2:
-        user: str = parameters[-1].strip()
-        if "t.me" in user:
-            user: str = user.split("/")[-1]
-        try:
-            chatInfo = await client.get_chat(user)
-        except Exception:
-            return -2
-        # Controle de privado de outra pessoa ou bot não é permitido
-        if chatInfo.type in ("private", "bot"):
-            return -3
-        try:
-            admins = await client.get_chat_members(
-                chatInfo.id,
-                filter="administrators"
-            )
-        except Exception:
-            return -4
-        for admin in admins:
-            if admin.user.id == message.from_user.id:
-                return chatInfo.id
-        return -5
-    else:
-        session = client.database.getSession(message.chat.id)
-        if not session:
-            return message.chat.id
-        if (time() - session[2]) > 3600:
-            client.database.deleteSession(message.chat.id)
-            await message.reply("Sessão anterior fechada!")
-            return message.chat.id
-        return session[1]
+async def getChatIdByUsername(client: Client, userId: int, chatId: Union[str, int]):
+    if "t.me" in str(chatId):
+        chatId: str = chatId.split("/")[-1]
+    try:
+        chatInfo = await client.get_chat(chatId)
+    except Exception:
+        raise Exception("Erro ao obter informações do chat!")
+    if chatInfo.type in ("private", "bot"):
+        raise Exception("Você não pode controlar outra pessoa ou um bot!")
+    try:
+        chatAdmins = await client.get_chat_members(
+            chat_id=chatInfo.id,
+            filter="administrators"
+        )
+    except Exception:
+        raise Exception(
+            "Eu não estou nesse canal/grupo ou não sou administrador!"
+        )
+    isAdmin = any(filter(
+        lambda admin: admin.user.id == userId,
+        chatAdmins
+    ))
+    if isAdmin:
+        return chatInfo.id
+    raise Exception("Você não é um administrador do grupo/canal!")
 
 
 def getUTC() -> str:
-    try:
-        fuso: int = int(strftime("%Z"))
-    except ValueError:
-        fuso: int = 0
-    hours: int = int(strftime("%H")) + -(fuso)
-    result: str = addZero(hours) + ":" + strftime("%M")
+    timeNow = datetime.now(timezone.utc)
+    result = f"{addZero(timeNow.hour)}:{addZero(timeNow.minute)}"
     return result
 
 
-def addZero(time: int) -> str:
-    result: str = ""
-    if time < 10:
-        result += "0"
-    result += str(time)
-    return result
+def addZero(number: int) -> str:
+    if number < 10:
+        return f"0{number}"
+    return str(number)
 
 
-def back(f: str) -> list:
-    return [InlineKeyboardButton("« Voltar", callback_data=f)]
+def back(data: str) -> List:
+    return [
+        InlineKeyboardButton(
+            text="« Voltar",
+            callback_data=data
+        )
+    ]

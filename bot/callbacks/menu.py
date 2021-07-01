@@ -1,7 +1,9 @@
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram import Client
+from pyrogram.types import CallbackQuery
 
 
-async def menu(client, callback):
+async def menu(client: Client, callback: CallbackQuery):
     msg = callback.message
     await client.edit_message_text(
         message_id=msg.message_id,

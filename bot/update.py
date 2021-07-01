@@ -1,63 +1,67 @@
+from .extra import getUTC
+from .database import types
+from time import sleep, gmtime
 from bs4 import BeautifulSoup
-from rss import getNews
-from time import sleep, strftime
-from extra import getUTC
 from threading import Thread
+from pyrogram import Client
+from typing import List, Union
+from feedparser import parse as getNews
 
 
-def run(app) -> None:
+def run(app: Client):
     print("Bot iniciado")
-    lastUpdate: int = int(strftime("%M"))
+    lastUpdate: int = gmtime().tm_min
     while True:
-        sleep(30)
-        minutes: int = int(strftime("%M"))
-        if not ((minutes % 5) == 0 and lastUpdate != minutes):
+        minutes: int = gmtime().tm_min
+        if lastUpdate != minutes:
+            lastUpdate = minutes
+            update(app)
             continue
-        print("atulizando...")
-        update(app)
-        lastUpdate = minutes
+        sleep(10)
 
 
-def update(app) -> None:
+def update(app: Client):
     hour: str = getUTC()
-    chats: list = app.database.getChatsByHours(hour)
-    for chat in chats:
-        chatId: int = chat[1]
-        services: list = app.database.getUserServices(chatId)
-        Thread(target=sendNews, args=(app, chatId, services,)).start()
+    timers: List[types.Timer] = app.database.getUsersByHours(hour)
+    for time in timers:
+        services: List[types.Service] = app.database.getServices(
+            chatId=time.chat_id
+        )
+        Thread(
+            target=sendNews,
+            args=(app, time.chat_id, services,)
+        ).start()
 
 
-def sendNews(app, chatId: int, services: list) -> None:
-    style: tuple = app.database.getStyle(chatId)
+def sendNews(app: Client, chatId: int, services: List[types.Service]):
+    style: types.Style = app.database.getStyle(chatId)
     for service in services:
-        serviceTitle: str = service[1]
-        url: str = service[2]
-        tags: str = service[3]
-        limit: int = service[4]
-        lastUpdate: str = service[5]
-        if not limit:
-            limit: int = app.database.getDefaultLimit(chatId)
-        count: int = 0
-        news: dict = getNews(url)
+        if not service.max_news:
+            config: Union[types.Config, types.Error] = app.database.getConfig(
+                chatId=chatId
+            )
+            service.max_news = config.max_news
+        count = 0
+        news: dict = getNews(service.url)
         for new in news["entries"]:
             if "published" not in new and "updated" not in new:
                 news["entries"].remove(new)
                 continue
-            try:
-                published: str = new["published"]
-            except Exception:
-                published: str = new["updated"]
-            if lastUpdate == published:
+            published = new.get("published") or new.get("updated")
+            if service.lastUpdate == published:
                 break
-            description: str = BeautifulSoup(
+            description = BeautifulSoup(
                 new["description"],
                 "html.parser"
-            ).text
-            text: str = style[1]+new['title']+style[1]+"\n"
-            if tags:
-                text += f"{tags}\n"
-            text += style[2]+serviceTitle+"» "+published+style[2]+"\n\n"
-            text += style[3]+description+style[3]+"\n\n"
+            ).text.replace("\n\n\n\n", "\n\n\n")
+            try:
+                text = style.title+new['title']+style.title+"\n"
+            except TypeError:
+                continue
+            if service.tags:
+                text += f"{service.tags}\n"
+            text += f"{style.hour_and_services}{service.title}» {published}{style.hour_and_services}\n\n"
+            text += f"{style.description}{description.strip()}{style.description}\n\n"
             text += f"🌐 [Ler mais!]({new['link']})"
             if len(text) > 4096:
                 continue
@@ -67,16 +71,14 @@ def sendNews(app, chatId: int, services: list) -> None:
                 parse_mode="markdown"
             )
             count += 1
-            if count == limit:
+            if count == service.max_news:
                 break
             sleep(1)
         if len(news["entries"]) > 0:
-            try:
-                published: str = news["entries"][0]["published"]
-            except Exception:
-                published: str = news["entries"][0]["updated"]
+            firstNews = news["entries"][0]
+            published = firstNews.get("published") or firstNews.get("updated")
             app.database.setLastUpdate(
                 chatId=chatId,
-                urlId=service[0],
+                urlId=service.url_id,
                 lastUpdate=published
             )

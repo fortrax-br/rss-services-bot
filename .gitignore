@@ -1,5 +1,4 @@
 .env
 __pycache__
 RSS.session
-*swp
-.vscode
+run.sh

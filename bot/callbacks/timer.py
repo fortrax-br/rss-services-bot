@@ -1,16 +1,18 @@
-import extra
+from .. import extra
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram import Client
+from pyrogram.types import CallbackQuery
 
 
-async def listTimers(client, callback):
+async def listTimers(client: Client, callback: CallbackQuery):
     msg = callback.message
-    chatId: int = await extra.getChatId(client, msg)
-    buttons: list = []
-    timers: list = client.database.getTimers(chatId)
+    chatId = await extra.getChatId(client, msg)
+    buttons = []
+    timers = client.database.getTimers(chatId)
     for time in timers:
         buttons.append([InlineKeyboardButton(
-            time[2],
-            callback_data=f"removeTimerConfirm {time[2]}"
+            text=time.timer,
+            callback_data=f"removeTimerConfirm {time.timer}"
         )])
     buttons.append(extra.back("menu"))
     await client.edit_message_text(
@@ -21,7 +23,7 @@ async def listTimers(client, callback):
     )
 
 
-async def confirm(client, callback, time):
+async def confirm(client: Client, callback: CallbackQuery, time: str):
     msg = callback.message
     await client.edit_message_text(
         message_id=msg.message_id,
@@ -42,7 +44,7 @@ async def confirm(client, callback, time):
     )
 
 
-async def ok(client, callback, timer):
+async def ok(client: Client, callback: CallbackQuery, timer: str):
     chatId: int = await extra.getChatId(client, callback.message)
     client.database.deleteTimer(chatId, timer)
     await client.answer_callback_query(callback.id, "Removido!")
