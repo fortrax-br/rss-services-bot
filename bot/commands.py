@@ -117,9 +117,10 @@ async def session(client: Client, message: Message):
     try:
         client.database.addUser(chatId)
         client.database.createConfig(chatId)
-        client.database.createDefaultStyle(chatId)
     except Exception:
         pass
+    try: client.database.createDefaultStyle(chatId)
+    except Exception: pass
     try:
         client.database.createSession(message.chat.id, chatId)
     except Exception:
