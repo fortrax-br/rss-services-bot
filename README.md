@@ -21,4 +21,10 @@ $ export BOT_TOKEN="123456:asdfghjkloiuyrec" # E o mais importante, o token do s
 $ export DATABASE_URL="postgresql+psycopg2://user:password@host:port/database"
 ```
 
-Após ter feito isso você já vai poder usar o bot tranquilamente rodando o comando `python3 bot` nessa pasta.
+Após ter feito isso você já vai poder usar o bot tranquilamente rodando o comando `python3 -m bot` nessa pasta.
+
+
+## Doações
+
+  - [PicPay](https://app.picpay.com/user/dheisomgomes)
+  - Pix: `fff2b9b3-15b9-47bf-a4a6-a58e220ab7ae`
