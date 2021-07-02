@@ -33,7 +33,7 @@ async def removeServiceMenu(client: Client, callback: CallbackQuery):
     )
 
 
-async def removeServiceConfirm(client, callback, urlId: int):
+async def removeServiceConfirm(client: Client, callback: CallbackQuery, urlId: int):
     msg = callback.message
     for button in callback.message.reply_markup.inline_keyboard:
         if button[0].callback_data == callback.data:
@@ -58,14 +58,15 @@ async def removeServiceConfirm(client, callback, urlId: int):
     )
 
 
-async def removeServiceOk(client, callback, urlId: str):
+async def removeServiceOk(client: Client, callback: CallbackQuery, urlId: int):
     message = callback.message
-    client.database.deleteService(message.chat.id, urlId)
+    userId = await getChatId(client, message)
+    client.database.deleteService(userId, urlId)
     await removeServiceMenu(client, callback)
     await client.answer_callback_query(callback.id, "Removido!")
 
 
-async def listServices(client, callback):
+async def listServices(client: Client, callback: CallbackQuery):
     msg = callback.message
     userId = await getChatId(client, msg)
     services = client.database.getServices(userId)
